@@ -1,0 +1,40 @@
+.env
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+
+# Local development and agent tooling
+/.claude/
+/.codex-screenshots/
+/.deps/
+/tools/
+/tmp/
+/__pycache__/
+*.pyc
+
+# Review, render, and migration artifacts
+/inputs/
+/output/
+/polished_reports/
+/qa/
+/qa-screenshots/
+/--full-page
+/*.png
+
+# Local helper scripts that are not part of the website runtime
+/build_thesis.py
+/generate_code_submission.py
+/inspect_docx.py
+/layout_polish_reports.py
+/polish_reports.py
+/polish_reports_content_preserving.py
+/render_docx_portable.py
+/set_body_fangsong.py
+
+# WordPress runtime-generated files
+/wp-content/cache/
+/wp-content/upgrade/
+/wp-content/backups/
+/wp-content/ai1wm-backups/
+/wp-content/debug.log
