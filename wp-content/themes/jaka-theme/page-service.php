@@ -32,7 +32,7 @@ $capability_icon = function ($index) {
 ?>
 
 <section class="service-support-hero" aria-label="<?php echo esc_attr($cx('服务与支持', 'Service and Support')); ?>">
-    <img src="<?php echo esc_url($asset('banner/service-support-banner.png')); ?>" alt="<?php echo esc_attr($cx('辰轩服务与支持', 'ChenXuan Service and Support')); ?>" class="service-support-hero-img">
+    <img src="<?php echo esc_url($asset('banner/service-support-banner.jpg')); ?>" alt="<?php echo esc_attr($cx('辰轩服务与支持', 'ChenXuan Service and Support')); ?>" class="service-support-hero-img" width="1920" height="850" fetchpriority="high">
 </section>
 
 <section class="service-capability-section" id="service-overview">

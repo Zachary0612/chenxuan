@@ -342,13 +342,15 @@
     position: relative;
     display: block;
     overflow: hidden;
-    background: #f3f4f6;
+    padding-top: var(--header-height);
+    background: #f7f8fb;
 }
 .service-support-hero-img {
     display: block;
     width: 100%;
     height: auto;
-    object-fit: contain;
+    aspect-ratio: 1920 / 850;
+    object-fit: cover;
     object-position: center;
 }
 .service-support-hero-cover {
