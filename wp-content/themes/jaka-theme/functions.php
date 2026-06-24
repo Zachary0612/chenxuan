@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Chenxuan Robotics Theme Functions
  */
