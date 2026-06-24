@@ -4122,3 +4122,51 @@ body.admin-bar .mega-menu-panel {
     object-position: center;
     border-radius: 6px;
 }
+
+/* v2.0.99: solution menu previews industry scenes as a larger visual card. */
+.mega-menu-panel--solutions .mega-menu-inner {
+    grid-template-columns: minmax(190px, .72fr) minmax(190px, .66fr) minmax(420px, 1.18fr);
+    gap: clamp(28px, 3.4vw, 56px);
+    align-items: stretch;
+}
+
+.mega-menu-panel--solutions .mega-col {
+    min-width: 0;
+}
+
+.mega-menu-panel--solutions .mega-featured {
+    min-width: min(440px, 34vw);
+}
+
+.mega-menu-panel--solutions .mega-featured-card {
+    height: 100%;
+    padding: 22px;
+    border: 1px solid rgba(15, 23, 42, .08);
+    border-radius: 8px;
+    background: linear-gradient(180deg, #ffffff 0%, #f7f9fb 100%);
+}
+
+.mega-menu-panel--solutions .mega-featured-img {
+    height: clamp(210px, 18vw, 280px);
+    padding: 0;
+    background: #e8edf2;
+    overflow: hidden;
+}
+
+.mega-menu-panel--solutions .mega-featured-img img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    border-radius: 8px !important;
+}
+
+@media (max-width: 1180px) {
+    .mega-menu-panel--solutions .mega-menu-inner {
+        grid-template-columns: repeat(2, minmax(180px, 1fr));
+    }
+
+    .mega-menu-panel--solutions .mega-featured {
+        grid-column: 1 / -1;
+    }
+}

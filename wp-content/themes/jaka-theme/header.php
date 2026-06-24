@@ -122,8 +122,15 @@ foreach ($product_cards as $product) {
     }
 }
 
-$solution_links = array_map(function ($solution) {
-    return ['label' => $solution[0], 'url' => home_url('/solutions')];
+$solution_primary_case_slugs = function_exists('chenxuan_solution_primary_case_slugs') ? chenxuan_solution_primary_case_slugs() : [];
+$solution_links = array_map(function ($solution) use ($solution_primary_case_slugs) {
+    $case_slug = $solution_primary_case_slugs[$solution[2]] ?? '';
+    return [
+        'label' => $solution[0],
+        'url' => $case_slug
+            ? add_query_arg('case', $case_slug, home_url('/cases/'))
+            : home_url('/solutions/') . '#industry-scenarios',
+    ];
 }, $solutions);
 
 $service_links = [
@@ -135,10 +142,17 @@ $service_links = [
 ];
 
 $application_links = array_map(function ($application) {
-    return ['label' => $application, 'url' => home_url('/solutions')];
+    return ['label' => $application, 'url' => home_url('/solutions/') . '#application-videos'];
 }, array_slice($applications, 0, 8));
-$solution_case_link = ['label' => jaka_t('nav_cases') . ' ›', 'url' => home_url('/cases'), 'class' => 'mega-case-link'];
-$solution_application_links = array_merge($application_links, [$solution_case_link]);
+$solution_application_source = function_exists('chenxuan_case_applications') ? chenxuan_case_applications() : array_slice($applications, 0, 8);
+$solution_application_links = array_map(function ($application) {
+    return [
+        'label' => $application,
+        'url' => add_query_arg('case_application', $application, home_url('/cases/')) . '#case-results',
+    ];
+}, $solution_application_source);
+$solution_case_link = ['label' => jaka_t('nav_cases') . ' ›', 'url' => home_url('/cases/') . '#case-results', 'class' => 'mega-case-link'];
+$solution_application_links = array_merge($solution_application_links, [$solution_case_link]);
 
 $nav_items = [
     [
@@ -176,7 +190,7 @@ $nav_items = [
     ],
     [
         'label' => jaka_t('nav_solutions'),
-        'url' => home_url('/solutions'),
+        'url' => home_url('/solutions/'),
         'mega_variant' => 'solutions',
         'columns' => [
             ['title' => chenxuan_l('行业场景'), 'links' => $solution_links],
@@ -186,7 +200,7 @@ $nav_items = [
         'feature' => [
             'title' => jaka_t('section_solutions'),
             'desc' => jaka_t('solutions_desc'),
-            'url' => home_url('/solutions'),
+            'url' => home_url('/solutions/') . '#industry-scenarios',
             'image' => function_exists('chenxuan_home_asset_url') ? chenxuan_home_asset_url('industries/engineering-machinery.jpg') : '',
         ],
     ],

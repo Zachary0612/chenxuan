@@ -17,6 +17,11 @@ $cases = array_values(array_filter($cases, static function($case) use ($allowed_
 }));
 $active_slug = isset($_GET['case']) ? sanitize_title(wp_unslash($_GET['case'])) : '';
 $active_case = null;
+$initial_case_industry = isset($_GET['case_industry']) ? sanitize_text_field(wp_unslash($_GET['case_industry'])) : (isset($_GET['industry']) ? sanitize_text_field(wp_unslash($_GET['industry'])) : '');
+$initial_case_application = isset($_GET['case_application']) ? sanitize_text_field(wp_unslash($_GET['case_application'])) : (isset($_GET['application']) ? sanitize_text_field(wp_unslash($_GET['application'])) : '');
+$initial_case_industry = in_array($initial_case_industry, $industries, true) ? $initial_case_industry : 'all';
+$initial_case_application = in_array($initial_case_application, $applications, true) ? $initial_case_application : 'all';
+$is_application_video_view = !$active_slug && $initial_case_application !== 'all';
 
 foreach ($cases as $case) {
     if ($case['slug'] === $active_slug) {
@@ -113,18 +118,18 @@ $cx = static function($zh, $en) {
                     <div class="case-filter-group">
                         <strong><?php echo esc_html($cx('行业', 'Industry')); ?></strong>
                         <div class="case-filter-row">
-                            <button class="case-chip active" data-case-filter-type="industry" data-case-filter="all"><?php echo esc_html($cx('全部', 'All')); ?></button>
+                            <button class="case-chip <?php echo $initial_case_industry === 'all' ? 'active' : ''; ?>" data-case-filter-type="industry" data-case-filter="all"><?php echo esc_html($cx('全部', 'All')); ?></button>
                             <?php foreach ($case_fields as $field) : ?>
-                            <button class="case-chip" data-case-filter-type="industry" data-case-filter="<?php echo esc_attr($field); ?>"><?php echo esc_html($field); ?></button>
+                            <button class="case-chip <?php echo $initial_case_industry === $field ? 'active' : ''; ?>" data-case-filter-type="industry" data-case-filter="<?php echo esc_attr($field); ?>"><?php echo esc_html($field); ?></button>
                             <?php endforeach; ?>
                         </div>
                     </div>
                     <div class="case-filter-group">
                         <strong><?php echo esc_html($cx('应用', 'Application')); ?></strong>
                         <div class="case-filter-row">
-                            <button class="case-chip active" data-case-filter-type="application" data-case-filter="all"><?php echo esc_html($cx('全部', 'All')); ?></button>
+                            <button class="case-chip <?php echo $initial_case_application === 'all' ? 'active' : ''; ?>" data-case-filter-type="application" data-case-filter="all"><?php echo esc_html($cx('全部', 'All')); ?></button>
                             <?php foreach ($applications as $application) : ?>
-                            <button class="case-chip" data-case-filter-type="application" data-case-filter="<?php echo esc_attr($application); ?>"><?php echo esc_html($application); ?></button>
+                            <button class="case-chip <?php echo $initial_case_application === $application ? 'active' : ''; ?>" data-case-filter-type="application" data-case-filter="<?php echo esc_attr($application); ?>"><?php echo esc_html($application); ?></button>
                             <?php endforeach; ?>
                         </div>
                     </div>
@@ -138,10 +143,19 @@ $cx = static function($zh, $en) {
             <div class="case-results-head" data-aos="fade-up">
                 <h2><?php echo esc_html($cx('筛选', 'Filter')); ?></h2>
             </div>
-            <div class="case-grid">
+            <div class="case-grid<?php echo $is_application_video_view ? ' case-grid--videos-only' : ''; ?>" id="case-results">
                 <?php foreach ($cases as $i => $case) : ?>
                 <?php $card_media = $case['media'] ?? ['status' => 'missing']; ?>
-                <a class="case-card" href="<?php echo esc_url(add_query_arg('case', $case['slug'], home_url('/cases'))); ?>" data-case-industry="<?php echo esc_attr($case['industry']); ?>" data-case-application="<?php echo esc_attr($case['application']); ?>" data-aos="fade-up" data-aos-delay="<?php echo esc_attr(($i % 3) * 70); ?>">
+                <?php if ($is_application_video_view && empty($card_media['video'])) { continue; } ?>
+                <a class="case-card<?php echo $is_application_video_view ? ' case-card--video-only' : ''; ?>" href="<?php echo esc_url(add_query_arg('case', $case['slug'], home_url('/cases/'))); ?>" data-case-industry="<?php echo esc_attr($case['industry']); ?>" data-case-application="<?php echo esc_attr($case['application']); ?>" data-aos="fade-up" data-aos-delay="<?php echo esc_attr(($i % 3) * 70); ?>">
+                    <?php if ($is_application_video_view) : ?>
+                    <div class="case-video-only-media">
+                        <video muted playsinline preload="metadata" poster="<?php echo esc_url($card_media['poster'] ?? ''); ?>">
+                            <source src="<?php echo esc_url($card_media['video']); ?>" type="video/mp4">
+                        </video>
+                        <span><?php echo esc_html($case['application']); ?></span>
+                    </div>
+                    <?php else : ?>
                     <div class="case-card-media">
                         <?php if (!empty($card_media['poster'])) : ?>
                         <img src="<?php echo esc_url($card_media['poster']); ?>" alt="<?php echo esc_attr($case['title']); ?>" loading="lazy">
@@ -156,6 +170,7 @@ $cx = static function($zh, $en) {
                         <p><?php echo esc_html(wp_trim_words($case['desc'], 34)); ?></p>
                         <em><?php echo esc_html(jaka_t('btn_view_detail')); ?> <?php echo jaka_svg_icon('arrow-right'); ?></em>
                     </div>
+                    <?php endif; ?>
                 </a>
                 <?php endforeach; ?>
             </div>

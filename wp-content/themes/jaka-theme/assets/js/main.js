@@ -1284,6 +1284,56 @@
 
     document.addEventListener('DOMContentLoaded', initLazyVideo);
 
+    /* Service page: right-side stage navigation like the JAKA service flow. */
+    function initServiceStageNav() {
+        var nav = document.querySelector('.service-stage-nav');
+        if (!nav) return;
+
+        var links = Array.prototype.slice.call(nav.querySelectorAll('[data-service-nav]'));
+        var panels = links.map(function(link) {
+            return document.getElementById(link.getAttribute('data-service-nav'));
+        }).filter(Boolean);
+
+        if (!panels.length) return;
+
+        var ticking = false;
+
+        function setActive(id) {
+            links.forEach(function(link) {
+                var isActive = link.getAttribute('data-service-nav') === id;
+                link.classList.toggle('is-active', isActive);
+                link.setAttribute('aria-current', isActive ? 'true' : 'false');
+            });
+        }
+
+        function update() {
+            ticking = false;
+            var viewportH = window.innerHeight || document.documentElement.clientHeight;
+            var activeId = '';
+
+            panels.forEach(function(panel) {
+                var rect = panel.getBoundingClientRect();
+                var inRange = rect.top < viewportH * 0.58 && rect.bottom > viewportH * 0.28;
+                if (inRange) activeId = panel.id;
+            });
+
+            nav.classList.toggle('is-visible', !!activeId && window.innerWidth > 1180);
+            if (activeId) setActive(activeId);
+        }
+
+        function requestUpdate() {
+            if (ticking) return;
+            ticking = true;
+            window.requestAnimationFrame(update);
+        }
+
+        window.addEventListener('scroll', requestUpdate, { passive: true });
+        window.addEventListener('resize', requestUpdate);
+        update();
+    }
+
+    document.addEventListener('DOMContentLoaded', initServiceStageNav);
+
     /* About page customer reviews: alternate two batches every three seconds. */
     function initAboutTestimonialsRotation() {
         var stage = document.querySelector('.about-testimonials-stage');

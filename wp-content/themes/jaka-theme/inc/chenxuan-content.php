@@ -2630,11 +2630,19 @@ function chenxuan_solutions() {
         ['工程机械行业', '应用于挖掘机、装载机、起重机、叉车、农机及重型设备零部件生产。', 'engineering-machinery', '#0a4da2'],
         ['汽车及零部件行业', '应用于保险杠喷涂、动力总成装配、电池包制造、车身焊接、零部件加工、搬运、检测及自动化生产。', 'automotive-parts', '#1a6bc4'],
         ['金属加工与钣金制造行业', '应用于钣金加工、机箱机柜、配电柜、电梯部件、暖通设备、厨房设备、医疗设备外壳及五金制品。', 'metal-fabrication', '#6b7280'],
-        ['食品饮料与包装行业', '应用于食品加工、饮料灌装、乳制品、酒类、调味品、烘焙食品、宠物食品、日化包装及仓储物流。', 'food-packaging', '#dc7d14'],
-        ['钢结构与重型装备行业', '应用于建筑钢结构、桥梁工程、风电设备、压力容器、矿山机械、港口机械、工程机械、船舶及海洋工程。', 'heavy-equipment', '#334155'],
-        ['AGV智能搬运系统应用行业', '面向自动化物料搬运、仓储配送和生产物流，帮助企业实现厂内物流无人化和智能化。', 'agv-logistics', '#0d8a5f'],
-        ['智慧商业场景', '应用于机器人咖啡工作站、智能饮品吧台、无人零售终端、智慧餐厅、智能厨房和酒店服务。', 'smart-commerce', '#9333ea'],
+        ['船舶和钢结构行业', '应用于船体、H型钢、拱架、钢结构件及重型装备的自动化焊接与柔性加工。', 'ship-steel-structure', '#334155'],
+        ['环保清洁行业', '应用于工业清洁、粉尘清理、地面清洗及生产现场无人化清洁作业。', 'environmental-cleaning', '#0d8a5f'],
     ]);
+}
+
+function chenxuan_solution_primary_case_slugs() {
+    return [
+        'engineering-machinery' => 'excavator-bucket-welding',
+        'automotive-parts' => 'bumper-spraying',
+        'metal-fabrication' => 'cabinet-welding',
+        'ship-steel-structure' => 'h-beam-arch-welding',
+        'environmental-cleaning' => 'industrial-cleaning-robot',
+    ];
 }
 
 function chenxuan_case_industries() {
@@ -3096,15 +3104,18 @@ function chenxuan_solution_media_map() {
             'status' => 'poster',
         ];
     };
+    $case_media = function($path) {
+        return chenxuan_resolve_media([
+            'poster' => $path,
+        ]);
+    };
 
     return [
         'engineering-machinery' => $home_media('fit/industries/engineering-machinery.jpg'),
         'automotive-parts' => $home_media('fit/industries/automotive-parts.jpg'),
         'metal-fabrication' => $home_media('fit/industries/metal-fabrication.jpg'),
-        'food-packaging' => $home_media('fit/industries/food-packaging.jpg'),
-        'heavy-equipment' => $home_media('fit/industries/heavy-equipment.jpg'),
-        'agv-logistics' => $home_media('fit/industries/agv-logistics.jpg'),
-        'smart-commerce' => $home_media('fit/industries/smart-commerce.jpg'),
+        'ship-steel-structure' => $case_media('solution-cases/h-beam-arch-welding/poster.jpg'),
+        'environmental-cleaning' => $case_media('solution-cases/industrial-cleaning-robot/poster.jpg'),
     ];
 }
 
