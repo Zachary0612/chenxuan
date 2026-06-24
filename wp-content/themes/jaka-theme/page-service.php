@@ -17,6 +17,18 @@ $after_sales = function_exists('chenxuan_after_sales_faqs') ? chenxuan_after_sal
 $asset = function ($path) {
     return function_exists('chenxuan_service_asset_url') ? chenxuan_service_asset_url($path) : '';
 };
+
+$capability_icon = function ($index) {
+    $icons = [
+        '<svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><path d="M17 34v-5c0-9.2 6.7-16.5 15-16.5S47 19.8 47 29v5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M14 32h7v12h-7zM43 32h7v12h-7z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><path d="M47 44c-1.8 5.2-6 7.8-12.5 7.8H29" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M25.5 51.8h7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="49" cy="17" r="8.5" fill="none" stroke="var(--color-primary)" stroke-width="3"/><text x="49" y="20.8" text-anchor="middle" font-size="10.5" font-weight="800" fill="var(--color-primary)" font-family="Arial, sans-serif">24</text></svg>',
+        '<svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><path d="M13 17h38v30H13zM13 25h38M20 33h11M20 40h17" fill="none" stroke="currentColor" stroke-width="3"/><path d="m42 32 4 4-4 4M35 40l-4-4 4-4" fill="none" stroke="var(--color-primary)" stroke-width="3"/><path d="m39 30-4 12" fill="none" stroke="var(--color-primary)" stroke-width="3"/></svg>',
+        '<svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><path d="M21 15h23v36H21zM27 15v-4h11v4M27 25h11M27 33h8M27 41h7" fill="none" stroke="currentColor" stroke-width="3"/><path d="M41.5 38.5a8.5 8.5 0 1 0 17 0 8.5 8.5 0 0 0-17 0z" fill="none" stroke="var(--color-primary)" stroke-width="3"/><path d="M50 33.8v5.1l3.6 2.2" fill="none" stroke="var(--color-primary)" stroke-width="3"/><path d="M15 50c0-5 2-8 6-10" fill="none" stroke="currentColor" stroke-width="3"/></svg>',
+        '<svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><path d="M12 16h40v30H12zM20 52h24M28 46v6M36 46v6M18 24h8" fill="none" stroke="currentColor" stroke-width="3"/><path d="m19 38 8-8 7 6 10-12" fill="none" stroke="var(--color-primary)" stroke-width="3"/><path d="M43 24h5v5" fill="none" stroke="var(--color-primary)" stroke-width="3"/></svg>',
+        '<svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><path d="M15 17h34v23H15zM22 47h20M27 40v7M37 40v7" fill="none" stroke="currentColor" stroke-width="3"/><path d="M22 25h16M22 32h11" fill="none" stroke="currentColor" stroke-width="3"/><path d="M49 24h5v16" fill="none" stroke="var(--color-primary)" stroke-width="3"/><path d="M52 46a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM45 54c.8-4.2 3.4-6.4 7-6.4s6.2 2.2 7 6.4" fill="none" stroke="var(--color-primary)" stroke-width="3"/></svg>',
+    ];
+
+    return $icons[$index] ?? $icons[0];
+};
 ?>
 
 <section class="service-support-hero" aria-label="<?php echo esc_attr($cx('服务与支持', 'Service and Support')); ?>">
@@ -32,7 +44,10 @@ $asset = function ($path) {
         <div class="service-capability-grid">
             <?php foreach ($capabilities as $i => $item) : ?>
             <article class="service-capability-card" data-aos="fade-up" data-aos-delay="<?php echo esc_attr(($i + 1) * 70); ?>">
-                <span class="service-capability-index"><?php echo esc_html(str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT)); ?></span>
+                <div class="service-capability-head">
+                    <span class="service-capability-index"><?php echo esc_html(str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT)); ?></span>
+                    <span class="service-capability-icon" aria-hidden="true"><?php echo $capability_icon($i); ?></span>
+                </div>
                 <h3><?php echo esc_html($item['title']); ?></h3>
                 <p><?php echo esc_html($item['desc']); ?></p>
             </article>

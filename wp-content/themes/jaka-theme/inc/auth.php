@@ -118,7 +118,7 @@ function jaka_ajax_login_sms() {
     wp_set_current_user($user->ID);
     wp_set_auth_cookie($user->ID, true);
     jaka_auth_json(true, jaka_t('auth_login_success', '登录成功'), [
-        'redirect' => home_url('/'),
+        'redirect' => chenxuan_auth_redirect_target(isset($_POST['redirect_to']) ? $_POST['redirect_to'] : ''),
     ]);
 }
 add_action('wp_ajax_jaka_login_sms', 'jaka_ajax_login_sms');
@@ -156,7 +156,7 @@ function jaka_ajax_login_pwd() {
         jaka_auth_json(false, jaka_t('auth_err_credentials', '账号或密码错误'));
     }
     jaka_auth_json(true, jaka_t('auth_login_success', '登录成功'), [
-        'redirect' => home_url('/'),
+        'redirect' => chenxuan_auth_redirect_target(isset($_POST['redirect_to']) ? $_POST['redirect_to'] : ''),
     ]);
 }
 add_action('wp_ajax_jaka_login_pwd', 'jaka_ajax_login_pwd');
@@ -227,7 +227,7 @@ function jaka_ajax_register() {
     wp_set_current_user($user_id);
     wp_set_auth_cookie($user_id, true);
     jaka_auth_json(true, jaka_t('auth_register_success', '注册成功'), [
-        'redirect' => home_url('/'),
+        'redirect' => chenxuan_auth_redirect_target(isset($_POST['redirect_to']) ? $_POST['redirect_to'] : ''),
     ]);
 }
 add_action('wp_ajax_jaka_register', 'jaka_ajax_register');

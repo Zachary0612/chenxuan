@@ -17,18 +17,104 @@ $services = function_exists('chenxuan_services') ? chenxuan_services() : [];
 $applications = function_exists('chenxuan_applications') ? chenxuan_applications() : [];
 $product_families = function_exists('chenxuan_product_families') ? chenxuan_product_families() : [];
 $product_cards = function_exists('chenxuan_product_cards') ? chenxuan_product_cards() : [];
+$product_tree = function_exists('chenxuan_product_tree') ? chenxuan_product_tree() : [];
 $languages = function_exists('chenxuan_supported_languages') ? chenxuan_supported_languages() : [];
 $current_lang = function_exists('jaka_current_lang') ? jaka_current_lang() : 'zh';
+$current_user = is_user_logged_in() ? wp_get_current_user() : null;
+$current_user_name = $current_user ? ($current_user->display_name ?: $current_user->user_login) : '';
+$logout_url = wp_logout_url(home_url('/'));
+$products_url = home_url('/products/');
+$industrial_products_url = add_query_arg('product_category', 'industrial', $products_url) . '#products-list';
+$collaborative_products_url = add_query_arg('product_category', 'collaborative', $products_url) . '#products-list';
+$cx_mega_product_asset = static function ($filename) {
+    $url = function_exists('chenxuan_product_asset_url')
+        ? chenxuan_product_asset_url($filename)
+        : trailingslashit(JAKA_URI) . 'assets/images/products/catalog/' . ltrim($filename, '/');
+
+    return add_query_arg('v', JAKA_VERSION, $url);
+};
+
+$product_series_slugs = [
+    'welding',
+    'spraying',
+    'handling',
+    'cutting',
+    'polishing',
+    'bending',
+    'engraving',
+    'positioner',
+    'cobot-welding',
+    'composite',
+    'vision',
+    'machine-tool',
+    'coffee',
+    'cleaning',
+    'accessories',
+];
+$mega_product_image_overrides = [
+    'welding' => 'custom-welding-robot.png',
+    'spraying' => 'custom-spraying-robot.png',
+    'handling' => 'custom-handling-robot.png',
+    'polishing' => 'custom-polishing-robot.png',
+    'engraving' => 'custom-engraving-robot.png',
+    'positioner' => 'custom-showcase-system.png',
+    'cleaning' => 'custom-cleaning-robot.png',
+];
+$product_card_lookup = [];
+foreach ($product_cards as $product_card) {
+    $lookup_key = $product_card['filter_series'] ?? ($product_card['series'] ?? '');
+    if ($lookup_key) {
+        $product_card_lookup[$lookup_key] = $product_card;
+    }
+}
+$product_category_cards = [
+    'industrial' => [],
+    'collaborative' => [],
+];
+$product_series_index = 0;
+foreach ($product_tree as $category_index => $category) {
+    $family_key = $category_index === 1 ? 'collaborative' : 'industrial';
+    foreach (($category['groups'] ?? []) as $group) {
+        foreach (($group['series'] ?? []) as $series) {
+            $series_slug = $product_series_slugs[$product_series_index] ?? sanitize_title($series['name'] ?? '');
+            $source_card = $product_card_lookup[$series_slug] ?? [];
+            $card_image = $source_card['image'] ?? '';
+            if ($series_slug === 'spraying' && function_exists('chenxuan_home_asset_url')) {
+                $card_image = chenxuan_home_asset_url('industries/spraying-system.jpg');
+            }
+            if (!empty($mega_product_image_overrides[$series_slug])) {
+                $card_image = $cx_mega_product_asset($mega_product_image_overrides[$series_slug]);
+            }
+            $models = !empty($series['models']) && is_array($series['models']) ? implode(' / ', array_slice($series['models'], 0, 3)) : '';
+            $product_category_cards[$family_key][] = [
+                'name' => $series['name'] ?? ($source_card['name'] ?? ''),
+                'desc' => $source_card['desc'] ?? $models,
+                'tag' => $source_card['tag'] ?? '',
+                'image' => $card_image,
+                'url' => add_query_arg('product_category', $series_slug, home_url('/products/')) . '#products-list',
+            ];
+            $product_series_index++;
+        }
+    }
+}
 
 $product_links = [];
 foreach ($product_families as $family) {
-    $product_links[] = ['label' => $family['name'], 'url' => home_url('/products')];
+    $family_key = ($family['family'] ?? '') === 'collaborative' ? 'collaborative' : 'industrial';
+    $product_links[] = [
+        'label' => $family['name'],
+        'url' => add_query_arg('product_category', $family_key, $products_url) . '#products-list',
+    ];
 }
 
 $industrial_links = [];
 $cobot_links = [];
 foreach ($product_cards as $product) {
-    $link = ['label' => $product['name'], 'url' => home_url('/products') . '#' . sanitize_title($product['series'])];
+    $series_key = $product['filter_series'] ?? ($product['series'] ?? '');
+    $link = [
+        'label' => $product['name'],
+        'url' => add_query_arg('product_category', $series_key, $products_url) . '#products-list',
+    ];
     if (($product['family'] ?? '') === 'collaborative') {
         $cobot_links[] = $link;
     } else {
@@ -57,7 +143,10 @@ $solution_application_links = array_merge($application_links, [$solution_case_li
 $nav_items = [
     [
         'label' => jaka_t('nav_products'),
-        'url' => home_url('/products'),
+        'url' => $industrial_products_url,
+        'badge' => 'HOT',
+        'mega_variant' => 'product-cards',
+        'product_cards' => $product_category_cards['industrial'],
         'columns' => [
             ['title' => chenxuan_l('Chenxuan Robot'), 'links' => array_slice($industrial_links, 0, 9)],
             ['title' => chenxuan_l('典型应用'), 'links' => $application_links],
@@ -65,13 +154,15 @@ $nav_items = [
         'feature' => [
             'title' => chenxuan_l('工业机器人产品系列'),
             'desc' => jaka_t('products_desc'),
-            'url' => home_url('/products'),
+            'url' => $industrial_products_url,
             'image' => function_exists('chenxuan_home_asset_url') ? chenxuan_home_asset_url('family/industrial-robot.jpg') : '',
         ],
     ],
     [
         'label' => jaka_t('nav_cobots'),
-        'url' => home_url('/products'),
+        'url' => $collaborative_products_url,
+        'mega_variant' => 'product-cards',
+        'product_cards' => $product_category_cards['collaborative'],
         'columns' => [
             ['title' => chenxuan_l('协作机器人产品系列'), 'links' => array_slice($cobot_links, 0, 9)],
             ['title' => chenxuan_l('典型应用'), 'links' => $application_links],
@@ -79,13 +170,14 @@ $nav_items = [
         'feature' => [
             'title' => chenxuan_l('协作机器人产品系列'),
             'desc' => chenxuan_l('具备安全协作、灵活部署与易于编程的特点，可与人类在同一工作空间内安全配合完成作业。'),
-            'url' => home_url('/products'),
+            'url' => $collaborative_products_url,
             'image' => function_exists('chenxuan_home_asset_url') ? chenxuan_home_asset_url('family/collaborative-robot.jpg') : '',
         ],
     ],
     [
         'label' => jaka_t('nav_solutions'),
         'url' => home_url('/solutions'),
+        'mega_variant' => 'solutions',
         'columns' => [
             ['title' => chenxuan_l('行业场景'), 'links' => $solution_links],
             ['title' => chenxuan_l('应用工艺'), 'links' => $solution_application_links],
@@ -101,6 +193,7 @@ $nav_items = [
     [
         'label' => jaka_t('nav_service'),
         'url' => home_url('/service'),
+        'mega_variant' => 'service',
         'columns' => [
             ['title' => jaka_t('section_service'), 'links' => $service_links],
         ],
@@ -116,6 +209,7 @@ $nav_items = [
     [
         'label' => jaka_t('nav_about'),
         'url' => home_url('/about'),
+        'mega_variant' => 'about',
         'columns' => [
             ['title' => jaka_t('nav_about'), 'links' => [
                 ['label' => chenxuan_l('公司介绍'), 'url' => home_url('/about')],
@@ -133,7 +227,13 @@ $nav_items = [
 ];
 ?>
 
-<header id="site-header" class="site-header">
+<?php
+$header_classes = ['site-header', 'site-header--lang-' . sanitize_html_class($current_lang)];
+if (!in_array($current_lang, ['zh', 'zh_tw'], true)) {
+    $header_classes[] = 'site-header--latin';
+}
+?>
+<header id="site-header" class="<?php echo esc_attr(implode(' ', $header_classes)); ?>">
     <div class="header-inner">
         <div class="container header-container">
             <div class="site-logo">
@@ -146,10 +246,45 @@ $nav_items = [
                 <ul class="nav-menu">
                     <?php foreach ($nav_items as $item) : ?>
                     <li class="menu-item<?php echo !empty($item['columns']) ? ' has-mega-menu' : ''; ?>">
-                        <a href="<?php echo esc_url($item['url']); ?>"><?php echo esc_html($item['label']); ?></a>
+                        <a href="<?php echo esc_url($item['url']); ?>">
+                            <span><?php echo esc_html($item['label']); ?></span>
+                            <?php if (!empty($item['badge'])) : ?>
+                            <em class="nav-hot-badge"><?php echo esc_html($item['badge']); ?></em>
+                            <?php endif; ?>
+                        </a>
                         <?php if (!empty($item['columns'])) : ?>
-                        <div class="mega-menu-panel">
+                        <?php
+                        $mega_panel_classes = ['mega-menu-panel'];
+                        if (!empty($item['mega_variant'])) {
+                            $mega_panel_classes[] = 'mega-menu-panel--' . sanitize_html_class($item['mega_variant']);
+                        }
+                        ?>
+                        <div class="<?php echo esc_attr(implode(' ', $mega_panel_classes)); ?>">
                             <div class="mega-menu-inner">
+                                <?php if (($item['mega_variant'] ?? '') === 'product-cards' && !empty($item['product_cards'])) : ?>
+                                <div class="mega-product-grid">
+                                    <?php foreach ($item['product_cards'] as $product_card) : ?>
+                                    <a href="<?php echo esc_url($product_card['url']); ?>" class="mega-product-card">
+                                        <div class="mega-product-img">
+                                            <?php if (!empty($product_card['image'])) : ?>
+                                            <img src="<?php echo esc_url($product_card['image']); ?>" alt="<?php echo esc_attr($product_card['name']); ?>" loading="lazy">
+                                            <?php else : ?>
+                                            <div class="mega-product-placeholder"><?php echo esc_html(chenxuan_short_name()); ?></div>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="mega-product-body">
+                                            <h4 class="mega-product-title">
+                                                <span><?php echo esc_html($product_card['name']); ?></span>
+                                                <?php if (!empty($product_card['tag'])) : ?>
+                                                <em><?php echo esc_html($product_card['tag']); ?></em>
+                                                <?php endif; ?>
+                                            </h4>
+                                            <span class="mega-product-brand">ChenXuan Robot</span>
+                                        </div>
+                                    </a>
+                                    <?php endforeach; ?>
+                                </div>
+                                <?php else : ?>
                                 <?php foreach ($item['columns'] as $column) : ?>
                                 <div class="mega-col">
                                     <h4 class="mega-title"><?php echo esc_html($column['title']); ?></h4>
@@ -178,6 +313,7 @@ $nav_items = [
                                     </div>
                                 </div>
                                 <?php endif; ?>
+                                <?php endif; ?>
                             </div>
                         </div>
                         <?php endif; ?>
@@ -202,11 +338,19 @@ $nav_items = [
                         <?php endforeach; ?>
                     </div>
                 </div>
+                <?php if ($current_user) : ?>
+                <div class="header-auth header-auth--logged-in">
+                    <span class="header-user-name"><?php echo esc_html($current_user_name); ?></span>
+                    <span class="header-auth-divider"></span>
+                    <a href="<?php echo esc_url($logout_url); ?>"><?php echo esc_html(jaka_t('btn_logout') ?: 'Log out'); ?></a>
+                </div>
+                <?php else : ?>
                 <div class="header-auth">
                     <a href="<?php echo esc_url(home_url('/login')); ?>"><?php echo esc_html(jaka_t('btn_login')); ?></a>
                     <span class="header-auth-divider"></span>
                     <a href="<?php echo esc_url(home_url('/register')); ?>"><?php echo esc_html(jaka_t('btn_register')); ?></a>
                 </div>
+                <?php endif; ?>
                 <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Menu">
                     <span class="hamburger"><span></span><span></span><span></span></span>
                 </button>
@@ -260,8 +404,13 @@ $nav_items = [
                     </div>
                 </div>
                 <div class="mobile-auth-links">
+                    <?php if ($current_user) : ?>
+                    <span class="btn-login-mobile mobile-auth-user"><?php echo esc_html($current_user_name); ?></span>
+                    <a href="<?php echo esc_url($logout_url); ?>" class="btn-register-mobile"><?php echo esc_html(jaka_t('btn_logout') ?: 'Log out'); ?></a>
+                    <?php else : ?>
                     <a href="<?php echo esc_url(home_url('/login')); ?>" class="btn-login-mobile"><?php echo esc_html(jaka_t('btn_login')); ?></a>
                     <a href="<?php echo esc_url(home_url('/register')); ?>" class="btn-register-mobile"><?php echo esc_html(jaka_t('btn_register')); ?></a>
+                    <?php endif; ?>
                 </div>
                 <a href="<?php echo esc_url(home_url('/contact')); ?>" class="btn-consult-mobile"><?php echo esc_html(jaka_t('btn_consult')); ?></a>
             </div>

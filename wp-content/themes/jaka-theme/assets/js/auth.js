@@ -8,19 +8,39 @@
     var nonce   = window.jakaData ? window.jakaData.nonce : '';
     var agreeText = window.jakaData && window.jakaData.authAgreeRequired ? window.jakaData.authAgreeRequired : '请阅读并同意协议';
     var networkText = window.jakaData && window.jakaData.authNetworkError ? window.jakaData.authNetworkError : '网络错误';
+    var submittingText = window.jakaData && window.jakaData.formSubmitting ? window.jakaData.formSubmitting : '提交中...';
 
     function postData(action, data) {
         var formData = new FormData();
+        var fetchOptions;
+        var controller;
+        var timer;
         formData.append('action', action);
         formData.append('nonce', nonce);
         Object.keys(data).forEach(function(k) {
             formData.append(k, data[k]);
         });
-        return fetch(ajaxUrl, {
+        fetchOptions = {
             method: 'POST',
             credentials: 'same-origin',
+            cache: 'no-store',
             body: formData,
-        }).then(function(r) { return r.json(); });
+        };
+        if (window.AbortController) {
+            controller = new AbortController();
+            fetchOptions.signal = controller.signal;
+            timer = setTimeout(function() { controller.abort(); }, 12000);
+        }
+        return fetch(ajaxUrl, fetchOptions).then(function(r) {
+            if (timer) clearTimeout(timer);
+            if (!r.ok) {
+                throw new Error('HTTP ' + r.status);
+            }
+            return r.json();
+        }).catch(function(err) {
+            if (timer) clearTimeout(timer);
+            throw err;
+        });
     }
 
     function showToast(message, isError) {
@@ -35,6 +55,44 @@
                 if (t.parentNode) t.parentNode.removeChild(t);
             }, 300);
         }, 2500);
+    }
+
+    function setFormBusy(form, busy) {
+        var submit;
+        if (!form) return;
+        form.dataset.busy = busy ? '1' : '0';
+        form.classList.toggle('is-loading', busy);
+        submit = form.querySelector('button[type="submit"], .auth-submit');
+        if (!submit) return;
+        if (busy) {
+            if (!submit.dataset.originalText) {
+                submit.dataset.originalText = submit.textContent;
+            }
+            submit.disabled = true;
+            submit.textContent = submittingText;
+        } else {
+            submit.disabled = false;
+            if (submit.dataset.originalText) {
+                submit.textContent = submit.dataset.originalText;
+                delete submit.dataset.originalText;
+            }
+        }
+    }
+
+    function runAuthRequest(form, action, data) {
+        if (!form || form.dataset.busy === '1') return;
+        setFormBusy(form, true);
+        postData(action, data).then(function(res) {
+            showToast(res.message, !res.success);
+            if (res.success && res.redirect) {
+                setTimeout(function() { window.location.href = res.redirect; }, 120);
+                return;
+            }
+            setFormBusy(form, false);
+        }).catch(function() {
+            showToast(networkText, true);
+            setFormBusy(form, false);
+        });
     }
 
     /* ══ Tab switching (already present in template but re-bind safely) ══ */
@@ -103,19 +161,15 @@
             smsForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 var data = {
-                    account: smsForm.account.value.trim(),
-                    code:    smsForm.sms_code.value.trim(),
+                    account:     smsForm.account.value.trim(),
+                    code:        smsForm.sms_code.value.trim(),
+                    redirect_to: smsForm.redirect_to ? smsForm.redirect_to.value : '',
                 };
                 if (!smsForm.agree.checked) {
                     showToast(agreeText, true);
                     return;
                 }
-                postData('jaka_login_sms', data).then(function(res) {
-                    showToast(res.message, !res.success);
-                    if (res.success && res.redirect) {
-                        setTimeout(function() { window.location.href = res.redirect; }, 600);
-                    }
-                });
+                runAuthRequest(smsForm, 'jaka_login_sms', data);
             });
         }
         var pwdForm = document.getElementById('login-pwd-form');
@@ -123,19 +177,15 @@
             pwdForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 var data = {
-                    account:  pwdForm.account.value.trim(),
-                    password: pwdForm.password.value,
+                    account:     pwdForm.account.value.trim(),
+                    password:    pwdForm.password.value,
+                    redirect_to: pwdForm.redirect_to ? pwdForm.redirect_to.value : '',
                 };
                 if (!pwdForm.agree.checked) {
                     showToast(agreeText, true);
                     return;
                 }
-                postData('jaka_login_pwd', data).then(function(res) {
-                    showToast(res.message, !res.success);
-                    if (res.success && res.redirect) {
-                        setTimeout(function() { window.location.href = res.redirect; }, 600);
-                    }
-                });
+                runAuthRequest(pwdForm, 'jaka_login_pwd', data);
             });
         }
     }
@@ -151,15 +201,11 @@
                     showToast(agreeText, true);
                     return;
                 }
-                postData('jaka_register', {
-                    type:    'sms',
-                    account: smsForm.account.value.trim(),
-                    code:    smsForm.sms_code.value.trim(),
-                }).then(function(res) {
-                    showToast(res.message, !res.success);
-                    if (res.success && res.redirect) {
-                        setTimeout(function() { window.location.href = res.redirect; }, 600);
-                    }
+                runAuthRequest(smsForm, 'jaka_register', {
+                    type:        'sms',
+                    account:     smsForm.account.value.trim(),
+                    code:        smsForm.sms_code.value.trim(),
+                    redirect_to: smsForm.redirect_to ? smsForm.redirect_to.value : '',
                 });
             });
         }
@@ -172,16 +218,12 @@
                     showToast(agreeText, true);
                     return;
                 }
-                postData('jaka_register', {
+                runAuthRequest(pwdForm, 'jaka_register', {
                     type:             'password',
                     account:          pwdForm.account.value.trim(),
                     password:         pwdForm.password.value,
                     password_confirm: pwdForm.password_confirm.value,
-                }).then(function(res) {
-                    showToast(res.message, !res.success);
-                    if (res.success && res.redirect) {
-                        setTimeout(function() { window.location.href = res.redirect; }, 600);
-                    }
+                    redirect_to:      pwdForm.redirect_to ? pwdForm.redirect_to.value : '',
                 });
             });
         }

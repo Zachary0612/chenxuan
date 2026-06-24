@@ -11,8 +11,8 @@ $cx_footer_zh = static function($escaped) {
     return is_string($decoded) ? $decoded : $escaped;
 };
 $chenxuan_phone = '13802728597';
-$chenxuan_email = 'info@industry-robots.com';
-$chenxuan_address = chenxuan_lx('山东省济南市历城区工业北路中电建能源谷4-B-4', '4-B-4, Zhongdian Energy Valley, Gongye North Road, Licheng District, Jinan City, Shandong Province');
+$chenxuan_email = 'yanmei@chenxuanrobot.net';
+$chenxuan_address = chenxuan_lx('山东省济南市历城区工业北路5577号中电建能源谷4-B-4', '4-B-4, Zhongdian Energy Valley, No. 5577 Gongye North Road, Licheng District, Jinan, Shandong');
 ?>
 
 <div class="fixed-sidebar" id="fixed-sidebar">
@@ -44,17 +44,6 @@ $chenxuan_address = chenxuan_lx('山东省济南市历城区工业北路中电�
                         </svg>
                     </div>
                     <p class="footer-desc"><?php echo esc_html(jaka_t('ftr_desc')); ?></p>
-                    <div class="footer-social" aria-label="<?php echo esc_attr(chenxuan_lx($cx_footer_zh('\u793e\u5a92\u8fde\u63a5'), 'Social Media')); ?>">
-                        <?php foreach ($social_links as $social) : ?>
-                        <a class="social-icon" href="<?php echo esc_url($social['url']); ?>" target="_blank" rel="noopener" title="<?php echo esc_attr($social['label']); ?>" aria-label="<?php echo esc_attr($social['label']); ?>" style="<?php echo !empty($social['color']) ? '--social-color:' . esc_attr($social['color']) . ';' : ''; ?>">
-                            <?php if (!empty($social['icon'])) : ?>
-                            <img src="<?php echo esc_url($social['icon']); ?>" alt="" loading="lazy">
-                            <?php else : ?>
-                            <?php echo esc_html($social['short']); ?>
-                            <?php endif; ?>
-                        </a>
-                        <?php endforeach; ?>
-                    </div>
                     <div class="footer-contact-info">
                         <p class="footer-hotline-label"><?php echo esc_html(chenxuan_lx($cx_footer_zh('\u9879\u76ee\u54a8\u8be2'), 'Project Consultation')); ?></p>
                         <a href="<?php echo esc_url('tel:' . $chenxuan_phone); ?>" class="footer-phone">
@@ -69,8 +58,6 @@ $chenxuan_address = chenxuan_lx('山东省济南市历城区工业北路中电�
                         <p class="footer-address-label"><?php echo esc_html(chenxuan_lx($cx_footer_zh('\u516c\u53f8\u5730\u5740'), 'Company Address')); ?></p>
                         <div class="footer-addresses">
                             <p><?php echo esc_html($chenxuan_address); ?></p>
-                            <p><?php echo esc_html(chenxuan_lx($cx_footer_zh('\u710a\u63a5\u3001\u6253\u78e8\u3001\u55b7\u6d82\u3001\u642c\u8fd0\u3001\u7801\u579b\u3001\u673a\u5e8a\u4e0a\u4e0b\u6599\u53ca\u88c5\u914d\u7b49\u5de5\u4e1a\u5e94\u7528\u573a\u666f'), 'Welding, grinding, spraying, handling, palletizing, machine tending, assembly and other industrial application scenarios.')); ?></p>
-                            <p><?php echo esc_html(chenxuan_lx($cx_footer_zh('\u81ea\u52a8\u5316\u00b7\u673a\u5668\u4eba\u6280\u672f\u00b7\u5de5\u827a\u5f00\u53d1\u00b7\u673a\u5668\u4e0e\u63a7\u5236'), 'Automation · Robot Technology · Process Development · Machine and Control')); ?></p>
                         </div>
                     </div>
                 </div>
@@ -78,10 +65,10 @@ $chenxuan_address = chenxuan_lx('山东省济南市历城区工业北路中电�
                 <div class="footer-col">
                     <h4 class="footer-title"><?php echo esc_html(jaka_t('nav_products')); ?></h4>
                     <ul class="footer-links">
-                        <?php foreach ($products as $product) : ?>
+                        <?php foreach (array_slice($products, 0, 2) as $product) : ?>
                         <li><a href="<?php echo esc_url(home_url('/products')); ?>"><?php echo esc_html($product['name']); ?></a></li>
                         <?php endforeach; ?>
-                        <?php foreach (array_slice($applications, 0, 4) as $application) : ?>
+                        <?php foreach (array_slice($applications, 0, 3) as $application) : ?>
                         <li><a href="<?php echo esc_url(home_url('/products')); ?>"><?php echo esc_html($application . chenxuan_lx($cx_footer_zh('\u81ea\u52a8\u5316\u7cfb\u7edf'), ' Automation System')); ?></a></li>
                         <?php endforeach; ?>
                     </ul>
@@ -90,7 +77,7 @@ $chenxuan_address = chenxuan_lx('山东省济南市历城区工业北路中电�
                 <div class="footer-col">
                     <h4 class="footer-title"><?php echo esc_html(jaka_t('nav_solutions')); ?></h4>
                     <ul class="footer-links">
-                        <?php foreach ($solutions as $solution) : ?>
+                        <?php foreach (array_slice($solutions, 0, 4) as $solution) : ?>
                         <li><a href="<?php echo esc_url(home_url('/solutions')); ?>"><?php echo esc_html($solution[0]); ?></a></li>
                         <?php endforeach; ?>
                     </ul>
@@ -100,12 +87,23 @@ $chenxuan_address = chenxuan_lx('山东省济南市历城区工业北路中电�
                     <h4 class="footer-title"><?php echo esc_html(jaka_t('nav_service')); ?></h4>
                     <ul class="footer-links">
                         <li><a href="<?php echo esc_url(home_url('/service')); ?>"><?php echo esc_html(jaka_t('section_service')); ?></a></li>
-                        <li><a href="<?php echo esc_url(home_url('/service#faq')); ?>"><?php echo esc_html(chenxuan_lx($cx_footer_zh('\u5e38\u89c1\u95ee\u9898'), 'FAQ')); ?></a></li>
                         <li><a href="<?php echo esc_url(home_url('/service#after-sales')); ?>"><?php echo esc_html(chenxuan_lx($cx_footer_zh('\u552e\u540e\u670d\u52a1'), 'After-sales Service')); ?></a></li>
                         <li><a href="<?php echo esc_url(home_url('/strategic-cooperation')); ?>"><?php echo esc_html(chenxuan_lx($cx_footer_zh('\u6218\u7565\u5408\u4f5c'), 'Strategic Cooperation')); ?></a></li>
-                        <li><a href="<?php echo esc_url(home_url('/strategic-cooperation#video-cases')); ?>"><?php echo esc_html(chenxuan_lx($cx_footer_zh('\u9879\u76ee\u6848\u4f8b'), 'Project Cases')); ?></a></li>
                         <li><a href="<?php echo esc_url(home_url('/download')); ?>"><?php echo esc_html(jaka_t('nav_download')); ?></a></li>
                     </ul>
+                    <div class="footer-social-row">
+                        <div class="footer-social" aria-label="<?php echo esc_attr(chenxuan_lx($cx_footer_zh('\u793e\u5a92\u8fde\u63a5'), 'Social Media')); ?>">
+                            <?php foreach ($social_links as $social) : ?>
+                            <a class="social-icon" href="<?php echo esc_url($social['url']); ?>" target="_blank" rel="noopener" title="<?php echo esc_attr($social['label']); ?>" aria-label="<?php echo esc_attr($social['label']); ?>" style="<?php echo !empty($social['color']) ? '--social-color:' . esc_attr($social['color']) . ';' : ''; ?>">
+                                <?php if (!empty($social['icon'])) : ?>
+                                <img src="<?php echo esc_url($social['icon']); ?>" alt="" loading="lazy">
+                                <?php else : ?>
+                                <?php echo esc_html($social['short']); ?>
+                                <?php endif; ?>
+                            </a>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="footer-col">
@@ -113,7 +111,6 @@ $chenxuan_address = chenxuan_lx('山东省济南市历城区工业北路中电�
                     <ul class="footer-links">
                         <li><a href="<?php echo esc_url(home_url('/about')); ?>"><?php echo esc_html(chenxuan_lx($cx_footer_zh('\u4e86\u89e3\u8fb0\u8f69'), 'About ChenXuan')); ?></a></li>
                         <li><a href="<?php echo esc_url(home_url('/news')); ?>"><?php echo esc_html(jaka_t('nav_news')); ?></a></li>
-                        <li><a href="<?php echo esc_url(home_url('/cases')); ?>"><?php echo esc_html(jaka_t('pg_cases_title')); ?></a></li>
                         <li><a href="<?php echo esc_url(home_url('/contact')); ?>"><?php echo esc_html(jaka_t('mega_contact')); ?></a></li>
                     </ul>
                 </div>

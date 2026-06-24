@@ -4,9 +4,10 @@
  */
 get_header();
 
-$download_url = static function($file) {
-    return content_url('uploads/chenxuan/downloads/' . ltrim((string) $file, '/'));
-};
+$can_download = is_user_logged_in();
+$download_page_url = home_url('/download');
+$login_url = add_query_arg('redirect_to', $download_page_url, home_url('/login'));
+$register_url = add_query_arg('redirect_to', $download_page_url, home_url('/register'));
 
 $dl_categories = [
     'all' => ['label' => chenxuan_lx('全部资料', 'All Resources'), 'children' => []],
@@ -103,12 +104,30 @@ $dl_groups = [
         </aside>
 
         <div class="dlc-content">
+            <?php if (!$can_download) : ?>
+            <div class="dlc-access-notice" role="status">
+                <div class="dlc-access-icon">
+                    <?php echo jaka_svg_icon('lock'); ?>
+                </div>
+                <div class="dlc-access-copy">
+                    <strong><?php echo esc_html(chenxuan_lx('登录后即可预览和下载资料', 'Sign in to preview and download resources')); ?></strong>
+                    <span><?php echo esc_html(chenxuan_lx('产品手册、工艺资料等文件仅向已注册用户开放。', 'Product manuals and process resources are available to registered users only.')); ?></span>
+                </div>
+                <div class="dlc-access-actions">
+                    <a class="dlc-access-login" href="<?php echo esc_url($login_url); ?>"><?php echo esc_html(jaka_t('btn_login')); ?></a>
+                    <a class="dlc-access-register" href="<?php echo esc_url($register_url); ?>"><?php echo esc_html(jaka_t('btn_register')); ?></a>
+                </div>
+            </div>
+            <?php endif; ?>
             <?php foreach ($dl_groups as $group_key => $group) : ?>
             <div class="dlc-group" data-group="<?php echo esc_attr($group_key); ?>">
                 <h3 class="dlc-group-title"><?php echo esc_html($group['title']); ?></h3>
                 <div class="dlc-list">
                     <?php foreach ($group['items'] as $item) : ?>
-                    <?php $file_url = $download_url($item['file']); ?>
+                    <?php
+                    $preview_url = $can_download ? chenxuan_protected_download_url($item['file'], 'inline') : $login_url;
+                    $file_url = $can_download ? chenxuan_protected_download_url($item['file'], 'download') : $login_url;
+                    ?>
                     <div class="dlc-row" data-cat="<?php echo esc_attr($group_key); ?>">
                         <div class="dlc-row-left">
                             <div class="dlc-row-info">
@@ -116,11 +135,11 @@ $dl_groups = [
                                 <span class="dlc-file-name"><?php echo esc_html(chenxuan_l($item['name'])); ?></span>
                             </div>
                             <div class="dlc-row-tools">
-                                <a href="<?php echo esc_url($file_url); ?>" class="dlc-tool-link" target="_blank" rel="noopener">
+                                <a href="<?php echo esc_url($preview_url); ?>" class="dlc-tool-link<?php echo !$can_download ? ' is-locked' : ''; ?>"<?php echo $can_download ? ' target="_blank" rel="noopener"' : ''; ?>>
                                     <svg width="18" height="12" viewBox="0 0 21 13" fill="none"><path d="M10.4 12.4c5.5 0 9.9-5.9 9.9-5.9S15.9.5 10.4.5.5 6.4.5 6.4s4.4 6 9.9 6z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><circle cx="10.4" cy="6.4" r="2.5" stroke="currentColor" stroke-width="1.3"/></svg>
                                     <?php echo esc_html(chenxuan_lx('预览', 'Preview')); ?>
                                 </a>
-                                <a href="<?php echo esc_url($file_url); ?>" class="dlc-tool-link" download>
+                                <a href="<?php echo esc_url($file_url); ?>" class="dlc-tool-link<?php echo !$can_download ? ' is-locked' : ''; ?>"<?php echo $can_download ? ' download' : ''; ?>>
                                     <?php echo jaka_svg_icon('download'); ?>
                                     <?php echo esc_html(jaka_t('nav_download')); ?>
                                 </a>

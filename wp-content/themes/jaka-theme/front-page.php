@@ -4,10 +4,15 @@ get_header();
 $banner_slides = function_exists('chenxuan_banner_slides') ? chenxuan_banner_slides() : [];
 $product_families = function_exists('chenxuan_product_families') ? chenxuan_product_families() : [];
 $solutions = function_exists('chenxuan_solutions') ? chenxuan_solutions() : [];
+$solutions = array_values(array_filter($solutions, static function($solution) {
+    return ($solution[2] ?? '') !== 'agv-logistics';
+}));
 $solution_media_map = function_exists('chenxuan_solution_media_map') ? chenxuan_solution_media_map() : [];
 $services = function_exists('chenxuan_services') ? chenxuan_services() : [];
 $news_items = function_exists('chenxuan_news_items') ? chenxuan_news_items() : [];
-$pattern_url = function_exists('chenxuan_home_asset_url') ? chenxuan_home_asset_url('pattern/impgbg.png') : '';
+$news_items = array_values(array_filter($news_items, static function($item) {
+    return ($item['filter'] ?? '') !== 'commerce';
+}));
 $gradients = [
     'linear-gradient(135deg, #10233f 0%, #0f766e 55%, #16325c 100%)',
     'linear-gradient(135deg, #111827 0%, #1d4ed8 52%, #0f766e 100%)',
@@ -89,10 +94,16 @@ $link_attrs = static function($url) {
             <?php endforeach; ?>
         </div>
         <div class="swiper-pagination"></div>
+        <button class="hero-swiper-btn hero-swiper-prev" type="button" aria-label="Previous banner">
+            <?php echo jaka_svg_icon('arrow-left'); ?>
+        </button>
+        <button class="hero-swiper-btn hero-swiper-next" type="button" aria-label="Next banner">
+            <?php echo jaka_svg_icon('arrow-right'); ?>
+        </button>
     </div>
 </section>
 
-<div class="home-restore-shell" style="<?php echo $pattern_url ? '--home-pattern:url(' . esc_url($pattern_url) . ');' : ''; ?>">
+<div class="home-restore-shell">
     <section class="products-section home-products-section" id="products">
         <div class="container">
             <div class="section-header home-section-header" data-aos="fade-up">
@@ -196,9 +207,8 @@ $link_attrs = static function($url) {
                 <?php foreach ($services as $idx => $service) : ?>
                 <a href="<?php echo esc_url(home_url('/service')); ?>" class="service-card" data-aos="fade-up" data-aos-delay="<?php echo esc_attr(($idx + 1) * 100); ?>">
                     <?php
-                    $service_gradient = 'linear-gradient(180deg, rgba(255,255,255,0.90) 0%, rgba(255,255,255,0.66) 30%, rgba(255,255,255,0.18) 58%, rgba(255,255,255,0.02) 100%)';
                     $service_bg = !empty($service['image'])
-                        ? 'background-image:' . $service_gradient . ', url(' . esc_url($service['image']) . ');'
+                        ? 'background-image:url(' . esc_url($service['image']) . ');'
                         : 'background:' . ($idx % 2 === 0 ? 'linear-gradient(135deg, #0f766e, #2563eb)' : 'linear-gradient(135deg, #111827, #334155)') . ';';
                     ?>
                     <div class="service-card-bg" style="<?php echo esc_attr($service_bg); ?>"></div>

@@ -8,6 +8,15 @@ $cx_text = static function ($zh, $en = '') {
 
     return $zh;
 };
+
+$cx_auto = static function ($text) {
+    $text = trim((string) $text);
+    if ($text === '') {
+        return '';
+    }
+
+    return function_exists('chenxuan_l') ? chenxuan_l($text) : $text;
+};
 ?>
 
 <main class="news-detail-page" id="site-content">
@@ -20,10 +29,12 @@ $cx_text = static function ($zh, $en = '') {
                 <a href="<?php echo esc_url(home_url('/news/')); ?>"><?php echo esc_html($cx_text('新闻中心', 'News Center')); ?></a>
             </nav>
             <span class="section-label"><?php echo esc_html($cx_text('新闻', 'News')); ?></span>
-            <h1><?php the_title(); ?></h1>
+            <h1><?php echo esc_html($cx_auto(get_the_title())); ?></h1>
             <div class="news-detail-meta">
                 <time datetime="<?php echo esc_attr(get_the_date('c')); ?>"><?php echo esc_html(get_the_date('Y.m.d')); ?></time>
-                <span><?php echo wp_kses_post(get_the_category_list(' / ')); ?></span>
+                <span><?php echo esc_html(implode(' / ', array_map(static function ($category) use ($cx_auto) {
+                    return $cx_auto($category->name);
+                }, get_the_category()))); ?></span>
             </div>
         </div>
     </header>
@@ -32,19 +43,32 @@ $cx_text = static function ($zh, $en = '') {
         <div class="container container-narrow">
             <article class="news-detail-article">
                 <div class="news-detail-content">
-                    <?php the_content(); ?>
+                    <?php
+                    $localized_content = apply_filters('the_content', get_the_content());
+                    echo wp_kses_post(function_exists('chenxuan_localize_html') ? chenxuan_localize_html($localized_content) : $localized_content);
+                    ?>
                 </div>
             </article>
 
             <nav class="news-detail-pagination" aria-label="<?php echo esc_attr($cx_text('上一篇和下一篇', 'Previous and next article')); ?>">
                 <div class="news-detail-prev">
                     <span><?php echo esc_html($cx_text('上一篇', 'Previous')); ?></span>
-                    <?php previous_post_link('%link', '%title'); ?>
+                    <?php
+                    $prev_post = get_previous_post();
+                    if ($prev_post) :
+                    ?>
+                    <a href="<?php echo esc_url(get_permalink($prev_post)); ?>"><?php echo esc_html($cx_auto(get_the_title($prev_post))); ?></a>
+                    <?php endif; ?>
                 </div>
                 <a class="news-detail-back" href="<?php echo esc_url(home_url('/news/')); ?>"><?php echo esc_html($cx_text('返回新闻中心', 'Back to News')); ?></a>
                 <div class="news-detail-next">
                     <span><?php echo esc_html($cx_text('下一篇', 'Next')); ?></span>
-                    <?php next_post_link('%link', '%title'); ?>
+                    <?php
+                    $next_post = get_next_post();
+                    if ($next_post) :
+                    ?>
+                    <a href="<?php echo esc_url(get_permalink($next_post)); ?>"><?php echo esc_html($cx_auto(get_the_title($next_post))); ?></a>
+                    <?php endif; ?>
                 </div>
             </nav>
         </div>
@@ -77,7 +101,7 @@ $cx_text = static function ($zh, $en = '') {
                         <?php endif; ?>
                     </span>
                     <span class="news-feature-date"><?php echo esc_html(get_the_date('Y.m.d')); ?></span>
-                    <strong><?php the_title(); ?></strong>
+                    <strong><?php echo esc_html($cx_auto(get_the_title())); ?></strong>
                 </a>
                 <?php endwhile; ?>
             </div>

@@ -11,6 +11,14 @@ function chenxuan_current_lang_code() {
     return function_exists('jaka_current_lang') ? jaka_current_lang() : 'zh';
 }
 
+function chenxuan_normalize_brand_copy($text) {
+    return str_replace(
+        ['辰轩机器人', '晨轩机器人', '辰轩', '晨轩', 'Chenxuan'],
+        ['ChenXuan Robot', 'ChenXuan Robot', 'ChenXuan', 'ChenXuan', 'ChenXuan'],
+        (string) $text
+    );
+}
+
 function chenxuan_supported_languages() {
     return [
         ['code' => 'zh', 'label' => '简体中文'],
@@ -410,6 +418,347 @@ function chenxuan_translate_chinese_to_english($text) {
     }
 
     return preg_match('/\p{Han}/u', $translated) ? '' : trim($translated);
+}
+
+function chenxuan_legacy_product_category_series($term_name, $context = '', $excerpt_context = '') {
+    $term = trim((string) $term_name);
+    if (is_array($context)) {
+        $title_context = $context['title'] ?? '';
+        $excerpt_context = $context['excerpt'] ?? $excerpt_context;
+    } else {
+        $title_context = $context;
+    }
+
+    $normalize_text = function($value) {
+        return strtolower(html_entity_decode(wp_strip_all_tags((string) $value), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+    };
+    $term_text = $normalize_text($term);
+    $title_text = $normalize_text($title_context);
+    $excerpt_text = $normalize_text($excerpt_context);
+
+    $has = function($text, $needles) {
+        foreach ((array) $needles as $needle) {
+            if ($needle !== '' && strpos($text, $needle) !== false) {
+                return true;
+            }
+        }
+        return false;
+    };
+    $title_has = function($needles) use ($has, $title_text) {
+        return $has($title_text, $needles);
+    };
+    $term_has = function($needles) use ($has, $term_text) {
+        return $has($term_text, $needles);
+    };
+    $all_has = function($needles) use ($has, $term_text, $title_text, $excerpt_text) {
+        return $has($term_text . ' ' . $title_text . ' ' . $excerpt_text, $needles);
+    };
+
+    if ($title_has(['gripper', 'suction cup', 'torque sensor', 'force-sensor', 'robot joint', 'joint module', 'lifting kit', 'end effector', 'welding torch', 'welding gun', 'welder power', 'power source', 'wire feeder', 'equipment accessory', 'accessory', 'accessories', 'spare part'])) {
+        return 'accessories';
+    }
+    if ($title_has(['positioner', 'turning table', 'turntable', 'rotary table', 'linear track', 'gantry rail', 'rotating table', 'welding turntable'])) {
+        return 'positioner';
+    }
+    if ($title_has(['coffee', 'barista', 'beverage', 'drink'])) {
+        return 'coffee';
+    }
+    if ($title_has(['cleaning', 'cleaner', 'sweeper', 'floor scrubber'])) {
+        return 'cleaning';
+    }
+    if ($title_has(['vision', 'camera', 'inspection', '3d visual', 'visual positioning', 'seam tracking'])) {
+        return 'vision';
+    }
+    if ($title_has(['spray', 'spraying', 'painting', 'coating', 'paint sprayer', 'cream depositor', 'depositor'])) {
+        return 'spraying';
+    }
+    if ($title_has(['polishing', 'grinding', 'sanding', 'deburr', 'surface finishing', 'surface treatment'])) {
+        return 'polishing';
+    }
+    if ($title_has(['cutting', 'cutter', 'laser cut', 'flame cut', 'tube cutter'])) {
+        return 'cutting';
+    }
+    if ($title_has(['bending', 'press brake', 'folding', 'stamping'])) {
+        return 'bending';
+    }
+    if ($title_has(['engraving', 'carving', '5-axis mechanical design'])) {
+        return 'engraving';
+    }
+    if ($title_has(['pallet', 'palletizing', 'loading', 'unloading', 'material handling', 'pick and place', 'pick-and-place', 'warehouse', 'stacker', 'bin', 'sorting', 'conveying', 'transport', 'logistics', 'packaging'])) {
+        return 'handling';
+    }
+    if ($title_has(['cnc', 'machine tool', 'machining center', 'milling', 'drilling', 'lathe', 'wet wipes making'])) {
+        return 'machine-tool';
+    }
+    if ($title_has(['collaborative welding', 'welding cobot', 'cobot welding', 'welding robot system', 'welding robot', 'robotic welder', 'metal joining'])) {
+        return $term === 'Collaborative Robot' || $title_has(['cobot', 'collaborative']) ? 'cobot-welding' : 'welding';
+    }
+    if ($term === 'Collaborative Robot' && $title_has(['scara', 'dual-arm', 'dispensing', 'gluing', 'sealing', 'screw locking', 'assembly', 'pick and place', 'pick-and-place'])) {
+        return 'composite';
+    }
+    if ($title_has(['collaborative', 'cobot', 'scara', 'dual-arm', 'dispensing', 'gluing', 'sealing', 'screw locking', 'assembly', 'parallel', 'delta'])) {
+        return 'composite';
+    }
+    if ($title_has(['welding', 'welder', 'weld'])) {
+        return $term === 'Collaborative Robot' || $title_has(['cobot', 'collaborative']) ? 'cobot-welding' : 'welding';
+    }
+    if (($term === 'Al Service Robots' || $term === 'AI Service Robots') && $all_has(['coffee', 'beverage', 'drink'])) {
+        return 'coffee';
+    }
+    if (($term === 'Al Service Robots' || $term === 'AI Service Robots') && $all_has(['cleaning', 'cleaner', 'sweeper', 'floor scrubber'])) {
+        return 'cleaning';
+    }
+
+    $map = [
+        'Positioner and Linear Track' => 'positioner',
+        'Collaborative Robot' => 'composite',
+        'Welding Robot' => 'welding',
+        'Bending Robots' => 'bending',
+        'Handling,Palletizing' => 'handling',
+        'Loading/Unloading Robot' => 'handling',
+        'Painting Robots' => 'spraying',
+        'Cutting Robot' => 'cutting',
+        'Engraving Robots' => 'engraving',
+        'Machine Tool Equipment' => 'machine-tool',
+        'AI Service Robots' => 'cleaning',
+        'Al Service Robots' => 'cleaning',
+        'Parallel Robots' => 'composite',
+    ];
+
+    return $map[$term] ?? 'welding';
+}
+
+function chenxuan_legacy_series_label($context = '') {
+    $context = strtolower((string) $context);
+    $labels = [
+        'positioner' => '定位器和线性轨道',
+        'cobot-welding' => '协作焊接机器人',
+        'welding' => '焊接机器人',
+        'spraying' => '喷涂机器人',
+        'handling' => '搬运码垛机器人',
+        'cutting' => '切割机器人',
+        'polishing' => '抛光机器人',
+        'bending' => '折弯机器人',
+        'engraving' => '雕刻机器人',
+        'composite' => '复合机器人',
+        'vision' => '视觉机器人',
+        'machine-tool' => '机床自动化设备',
+        'coffee' => '咖啡服务机器人',
+        'cleaning' => '清洁机器人',
+        'accessories' => '自动化设备配件',
+    ];
+
+    foreach ($labels as $slug => $label) {
+        if (strpos($context, $slug) !== false) {
+            return $label;
+        }
+    }
+
+    if (strpos($context, 'positioner') !== false || strpos($context, 'linear track') !== false || strpos($context, 'turning') !== false || strpos($context, 'rotary') !== false) {
+        return '定位器和线性轨道';
+    }
+    if (strpos($context, 'parallel') !== false || strpos($context, 'delta') !== false) {
+        return '并联机器人';
+    }
+    if (strpos($context, 'welding') !== false || strpos($context, 'welder') !== false) {
+        return '焊接机器人';
+    }
+    if (strpos($context, 'painting') !== false || strpos($context, 'spraying') !== false || strpos($context, 'coating') !== false) {
+        return '喷涂机器人';
+    }
+    if (strpos($context, 'cutting') !== false) {
+        return '切割机器人';
+    }
+    if (strpos($context, 'bending') !== false || strpos($context, 'stamping') !== false || strpos($context, 'press') !== false) {
+        return '折弯机器人';
+    }
+    if (strpos($context, 'engraving') !== false) {
+        return '雕刻机器人';
+    }
+    if (strpos($context, 'handling') !== false || strpos($context, 'palletizing') !== false || strpos($context, 'loading') !== false || strpos($context, 'unloading') !== false) {
+        return '搬运码垛机器人';
+    }
+    if (strpos($context, 'machine tool') !== false || strpos($context, 'packing') !== false || strpos($context, 'packaging') !== false || strpos($context, 'wrapping') !== false) {
+        return '自动化设备';
+    }
+
+    return '工业机器人自动化产品';
+}
+
+function chenxuan_legacy_summary_for_context($context = '') {
+    $context = strtolower((string) $context);
+    if (strpos($context, 'positioner') !== false || strpos($context, 'linear track') !== false || strpos($context, 'turning') !== false || strpos($context, 'rotary') !== false) {
+        return '适用于机器人焊接、装配及工件翻转定位场景，支持稳定承载、精准旋转和多角度协同作业，帮助产线提升加工效率与一致性。';
+    }
+    if (strpos($context, 'parallel') !== false || strpos($context, 'delta') !== false) {
+        return '适用于高速分拣、抓取、包装和轻量搬运场景，兼顾速度、精度与柔性部署，帮助客户搭建稳定高效的自动化单元。';
+    }
+    if (strpos($context, 'welding') !== false || strpos($context, 'welder') !== false) {
+        return '适用于工业焊接自动化场景，可与机器人、夹具、变位机和控制系统协同工作，提升焊接效率、焊缝一致性和产线稳定性。';
+    }
+    if (strpos($context, 'painting') !== false || strpos($context, 'spraying') !== false || strpos($context, 'coating') !== false) {
+        return '适用于工业喷涂与表面处理场景，可实现稳定喷涂轨迹和均匀覆盖，减少人工依赖并提升表面质量。';
+    }
+    if (strpos($context, 'cutting') !== false) {
+        return '适用于金属及非金属材料的自动切割加工，支持稳定轨迹控制和高精度作业，帮助提升加工效率与成品一致性。';
+    }
+    if (strpos($context, 'bending') !== false || strpos($context, 'stamping') !== false || strpos($context, 'press') !== false) {
+        return '适用于钣金折弯、冲压和柔性加工场景，可配合设备完成自动上下料与稳定加工，减少人工操作强度。';
+    }
+    if (strpos($context, 'engraving') !== false) {
+        return '适用于木材、金属、石材、塑料及复合材料的自动化雕刻加工，帮助客户提升加工精度和生产一致性。';
+    }
+    if (strpos($context, 'handling') !== false || strpos($context, 'palletizing') !== false || strpos($context, 'loading') !== false || strpos($context, 'unloading') !== false) {
+        return '适用于搬运、码垛、上下料及产线物流场景，帮助提升物料流转效率、降低人工强度并保持连续生产。';
+    }
+    if (strpos($context, 'machine tool') !== false || strpos($context, 'packing') !== false || strpos($context, 'packaging') !== false || strpos($context, 'wrapping') !== false) {
+        return '适用于自动化设备与工艺配套场景，可与机器人系统协同完成稳定生产，满足定制化产线集成需求。';
+    }
+    if (strpos($context, 'cleaning') !== false || strpos($context, 'service') !== false || strpos($context, 'coffee') !== false) {
+        return '适用于智能服务与无人化作业场景，可结合移动、识别和执行单元实现稳定、标准化运行。';
+    }
+
+    return '面向工业机器人与自动化集成场景，可根据客户工艺需求进行系统匹配，帮助提升效率、质量一致性和现场稳定运行。';
+}
+
+function chenxuan_translate_legacy_english_to_chinese($text, $context = '') {
+    $text = trim((string) $text);
+    if ($text === '') {
+        return '';
+    }
+
+    if (preg_match('/\p{Han}/u', $text)) {
+        return $text;
+    }
+
+    $combined_context = $context . ' ' . $text;
+    if (mb_strlen($text, 'UTF-8') > 86 || preg_match('/[.!?;]/', $text)) {
+        return chenxuan_legacy_summary_for_context($combined_context);
+    }
+
+    $terms = [
+        'Positioner and Linear Track' => '定位器和线性轨道',
+        'Collaborative Robot' => '协作机器人',
+        'Welding Robot' => '焊接机器人',
+        'Bending Robots' => '折弯机器人',
+        'Handling,Palletizing' => '搬运码垛机器人',
+        'Loading/Unloading Robot' => '上下料机器人',
+        'Painting Robots' => '喷涂机器人',
+        'Cutting Robot' => '切割机器人',
+        'Engraving Robots' => '雕刻机器人',
+        'Machine Tool Equipment' => '机床自动化设备',
+        'AI Service Robots' => '智能服务机器人',
+        'Al Service Robots' => '智能服务机器人',
+        'Parallel Robots' => '并联机器人',
+        'High Precision Industrial Parallel Manipulator Delta Robot Automated Handling' => '高精度工业并联机器人自动搬运系统',
+        'Custom Industrial Parallel Robot High Precision Delta Robot' => '定制高精度工业并联机器人',
+        'High Speed Delta Parallel Robot 4 Axis Pick and Place Robotic Arm' => '高速四轴德尔塔并联抓取机器人',
+        'Gantry Rail Mounted Robotic Welding System for Heavy Structure Fabrication' => '重型结构件龙门导轨式机器人焊接系统',
+        'Gantry Rail Mounted' => '龙门导轨式',
+        'Robotic Welding System' => '机器人焊接系统',
+        'Heavy Structure Fabrication' => '重型结构件制造',
+        'Heavy Duty' => '重载',
+        'Welding Positioner' => '焊接变位机',
+        'Industrial Rotary' => '工业旋转式',
+        'Rotary Welding Turning Table' => '旋转焊接转台',
+        '360 Degree Rotation' => '360度旋转',
+        'Servo Motor' => '伺服电机',
+        'Dual-axis' => '双轴',
+        'Dual Axis' => '双轴',
+        'Single-axis' => '单轴',
+        'Single Axis' => '单轴',
+        'U-Type' => 'U型',
+        'Pipe Welding Flange' => '管件法兰焊接',
+        'Precision Sliding Table' => '精密滑台',
+        'Thickened Frame' => '加厚框架',
+        'Parallel Manipulator' => '并联机械手',
+        'Parallel Robot' => '并联机器人',
+        'Delta Parallel Robot' => '德尔塔并联机器人',
+        'Delta Robot' => '德尔塔机器人',
+        'Pick and Place' => '抓取放置',
+        'Robotic Arm' => '机器人手臂',
+        'Automated Handling' => '自动搬运',
+        'Automatic Handling' => '自动搬运',
+        'Custom Industrial' => '定制工业',
+        'High Precision' => '高精度',
+        'High Speed' => '高速',
+        'Tube Film Packaging Machine' => '管膜包装机',
+        'Automatic Toilet Roll Paper Wrapping Packing Machine' => '全自动卷纸包装机',
+        'Industrial Carton Cargo Wrapping Equipment' => '工业纸箱货物包装设备',
+        'Presentation Video' => '展示视频',
+        'Product Presentation' => '产品展示',
+        'Product application scenario' => '产品应用场景',
+        'Spraying' => '喷涂',
+        'Painting' => '喷涂',
+        'Coating' => '涂装',
+        'Cutting' => '切割',
+        'Engraving' => '雕刻',
+        'Bending' => '折弯',
+        'Loading' => '上料',
+        'Unloading' => '下料',
+        'Palletizing' => '码垛',
+        'Handling' => '搬运',
+        'Machine Tool' => '机床',
+        'Carton' => '纸箱',
+        'Wrapping' => '包装',
+        'Packing' => '包装',
+        'Packaging' => '包装',
+        'Robot' => '机器人',
+        'Robotic' => '机器人',
+        'Manipulator' => '机械手',
+        'Industrial' => '工业',
+        'Automatic' => '自动化',
+        'Automated' => '自动化',
+        'Precision' => '精密',
+        'Speed' => '高速',
+        'Arm' => '手臂',
+        'Chenxuan' => 'ChenXuan',
+        'ChenXuan' => 'ChenXuan',
+        'Product' => '产品',
+        'System' => '系统',
+        'Equipment' => '设备',
+        'Machine' => '设备',
+        'Factory' => '工厂',
+        'Supplier' => '供应商',
+        'China' => '中国',
+        'Our' => '',
+        'Widely applicable' => '广泛适用',
+    ];
+
+    uksort($terms, function($a, $b) {
+        return strlen($b) <=> strlen($a);
+    });
+
+    $translated = $text;
+    foreach ($terms as $en => $zh) {
+        $translated = str_ireplace($en, $zh, $translated);
+    }
+
+    $translated = preg_replace('/\s+/', ' ', trim((string) $translated));
+    $translated = str_replace([' ,', ' .', ' - ', '-'], ['，', '。', '', ''], $translated);
+    $translated = trim($translated, " \t\n\r\0\x0B,.;:/");
+
+    preg_match_all('/[A-Za-z]{3,}/', $translated, $matches);
+    if (count($matches[0]) > 1 || mb_strlen($translated, 'UTF-8') > 48) {
+        return chenxuan_legacy_series_label($combined_context) . '自动化产品';
+    }
+
+    return $translated !== '' ? $translated : chenxuan_legacy_series_label($combined_context);
+}
+
+function chenxuan_legacy_localize($text, $context = '') {
+    $text = trim((string) $text);
+    if ($text === '') {
+        return '';
+    }
+
+    $lang = chenxuan_current_lang_code();
+    if ($lang === 'zh' || $lang === 'zh_tw') {
+        $zh = chenxuan_translate_legacy_english_to_chinese($text, $context);
+        return $lang === 'zh_tw' ? chenxuan_to_traditional(chenxuan_normalize_brand_copy($zh)) : chenxuan_normalize_brand_copy($zh);
+    }
+
+    return chenxuan_l($text);
 }
 
 function chenxuan_locale_profiles() {
@@ -2068,10 +2417,10 @@ function chenxuan_translate_from_english($english, $lang, $context = '') {
 function chenxuan_l($text) {
     $lang = chenxuan_current_lang_code();
     if ($lang === 'zh') {
-        return $text;
+        return chenxuan_normalize_brand_copy($text);
     }
     if ($lang === 'zh_tw') {
-        return chenxuan_to_traditional($text);
+        return chenxuan_to_traditional(chenxuan_normalize_brand_copy($text));
     }
     $map = chenxuan_content_en_map();
     $english = $map[$text] ?? null;
@@ -2093,10 +2442,10 @@ function chenxuan_l($text) {
 function chenxuan_lx($zh, $en) {
     $lang = chenxuan_current_lang_code();
     if ($lang === 'zh') {
-        return $zh;
+        return chenxuan_normalize_brand_copy($zh);
     }
     if ($lang === 'zh_tw') {
-        return chenxuan_to_traditional($zh);
+        return chenxuan_to_traditional(chenxuan_normalize_brand_copy($zh));
     }
     return chenxuan_translate_from_english($en, $lang, $zh);
 }
@@ -2107,6 +2456,9 @@ function chenxuan_should_localize_array_string($value) {
         return false;
     }
     if (preg_match('#^(https?:)?//#i', $text) || preg_match('#^(mailto:|tel:)#i', $text)) {
+        return false;
+    }
+    if (preg_match('/\.(?:jpe?g|png|webp|gif|svg|avif|mp4|webm|pdf)(?:[?#].*)?$/i', $text)) {
         return false;
     }
     if (preg_match('/^\/[A-Za-z0-9._~\/?#&=%:+-]*$/', $text) || preg_match('/^#[0-9A-Fa-f]{3,8}$/', $text)) {
@@ -2122,14 +2474,83 @@ function chenxuan_should_localize_array_string($value) {
     return true;
 }
 
-function chenxuan_localize_array($value) {
+function chenxuan_should_skip_localize_array_key($key) {
+    return in_array((string) $key, [
+        'bg',
+        'btn1_url',
+        'btn2_url',
+        'class',
+        'color',
+        'family',
+        'filter',
+        'filter_series',
+        'icon',
+        'image',
+        'key',
+        'poster',
+        'series',
+        'short',
+        'slug',
+        'status',
+        'tag',
+        'url',
+        'video',
+    ], true);
+}
+
+function chenxuan_localize_array($value, $value_key = null) {
     if (is_array($value)) {
         foreach ($value as $key => $item) {
-            $value[$key] = chenxuan_localize_array($item);
+            $value[$key] = chenxuan_localize_array($item, $key);
         }
         return $value;
     }
+    if ($value_key !== null && chenxuan_should_skip_localize_array_key($value_key)) {
+        return $value;
+    }
     return is_string($value) && chenxuan_should_localize_array_string($value) ? chenxuan_l($value) : $value;
+}
+
+function chenxuan_localize_html($html) {
+    $html = (string) $html;
+    if ($html === '' || !function_exists('chenxuan_l')) {
+        return $html;
+    }
+    if (chenxuan_current_lang_code() === 'zh') {
+        return $html;
+    }
+
+    $parts = preg_split('/(<[^>]+>)/u', $html, -1, PREG_SPLIT_DELIM_CAPTURE);
+    if ($parts === false) {
+        return chenxuan_l(wp_strip_all_tags($html));
+    }
+
+    $skip_depth = 0;
+    foreach ($parts as $index => $part) {
+        if ($part === '') {
+            continue;
+        }
+        if ($part[0] === '<') {
+            if (preg_match('/^<\s*(script|style|svg|noscript)\b/i', $part)) {
+                $skip_depth++;
+            } elseif ($skip_depth > 0 && preg_match('/^<\s*\/\s*(script|style|svg|noscript)\b/i', $part)) {
+                $skip_depth--;
+            }
+            continue;
+        }
+        if ($skip_depth > 0 || !preg_match('/[\p{Han}A-Za-z]/u', $part)) {
+            continue;
+        }
+
+        $decoded = html_entity_decode($part, ENT_QUOTES | ENT_HTML5, get_bloginfo('charset') ?: 'UTF-8');
+        if (!preg_match('/^(\s*)(.*?)(\s*)$/us', $decoded, $matches) || trim($matches[2]) === '') {
+            continue;
+        }
+
+        $parts[$index] = esc_html($matches[1] . chenxuan_l($matches[2]) . $matches[3]);
+    }
+
+    return implode('', $parts);
 }
 
 function chenxuan_brand_name() {
@@ -2193,8 +2614,8 @@ function chenxuan_product_families() {
     ]);
 
     $images = [
-        chenxuan_home_asset_url('fit/family/industrial-robot.jpg'),
-        chenxuan_home_asset_url('fit/family/collaborative-robot.jpg'),
+        chenxuan_home_asset_url('fit/family/industrial-family-16x9.png'),
+        chenxuan_home_asset_url('fit/family/collaborative-family-16x9.png'),
     ];
 
     foreach ($families as $idx => $family) {
@@ -2217,7 +2638,7 @@ function chenxuan_solutions() {
 }
 
 function chenxuan_case_industries() {
-    return chenxuan_localize_array(['工程机械', '汽车及零部件', '金属加工', '船舶和钢结构行业', '服务行业', '智能制造']);
+    return chenxuan_localize_array(['工程机械', '汽车及零部件', '金属加工', '船舶和钢结构行业', '环保清洁行业']);
 }
 
 function chenxuan_case_fields() {
@@ -2225,7 +2646,7 @@ function chenxuan_case_fields() {
 }
 
 function chenxuan_case_applications() {
-    return chenxuan_localize_array(['焊接', '喷涂', '搬运', '切割', '折弯', '点胶', '上下料', '打磨', '冲压', '雕刻']);
+    return chenxuan_localize_array(['焊接', '喷涂', '搬运', '切割', '折弯', '点胶', '上下料', '打磨', '冲压', '雕刻', '清洁']);
 }
 
 function chenxuan_applications() {
@@ -2542,7 +2963,8 @@ function chenxuan_case_items() {
         $make('steel-structure-welding', '钢结构焊接工作站', '船舶和钢结构行业', '焊接', '该工站采用机器人悬臂倒挂设计，操作灵活、焊接范围广，可高效处理大型钢结构件。机器人能够精准控制焊接路径和速度，保证焊缝质量一致，满足大型建筑或工业钢结构焊接的高标准要求，同时提升生产效率。', 'This workstation uses an inverted robot cantilever design for flexible operation and wide welding coverage. It efficiently handles large steel structures, precisely controls welding path and speed, keeps seam quality consistent, meets high standards for large building or industrial steel structures, and improves efficiency.'),
         $make('cobot-steel-welding', '协作钢结构焊接工作站', '船舶和钢结构行业', '焊接', '本工站使用协作机器人（Cobot），操作灵活、移动便捷。通过拖动示教即可完成焊接，无需复杂编程，提高使用效率。适用于中小型钢结构件的焊接，既提升生产效率，又降低人工操作门槛。', 'This workstation uses a collaborative robot for flexible operation and easy movement. Operators can complete welding through drag teaching without complex programming, improving usability. It is suitable for small and medium steel structures, increasing production efficiency and lowering the operation threshold.'),
         $make('hull-welding', '船体焊接工作站', '船舶和钢结构行业', '焊接', '该工站采用悬臂倒挂机器人结合免示教焊接系统和逆向建模技术，实现船体结构的高效、精确自动化焊接。机器人可覆盖船体各复杂焊接节点，保证焊缝均匀、结构牢固，同时显著提升焊接效率和生产一致性，适用于船舶制造大规模工业化生产。', 'This workstation combines an inverted cantilever robot, teach-free welding and reverse modeling technology for efficient and precise automated hull welding. Robots cover complex hull welding nodes, keep seams uniform and structures strong, and significantly improve welding efficiency and production consistency for large-scale shipbuilding.'),
-        $make('industrial-cleaning-robot', '工业清洁机器人', '服务行业', '打磨', '该机器人专为工业环境设计，实现地面、设备及生产区域的全自动清洁。配备高精度传感器与路径规划系统，能够自主识别障碍物、规划最优清洁路线，并根据不同地面材质调整清洁模式。机器人具备高效吸尘、拖地及喷洒功能，可连续工作长时间，显著降低人工清洁成本，提高厂区卫生水平和生产安全性，适用于工厂车间、仓储及大型生产线环境。', 'This robot is designed for industrial environments and automatically cleans floors, equipment and production areas. High-precision sensors and path planning allow it to detect obstacles, plan efficient routes and adjust cleaning modes by floor material. With vacuuming, mopping and spraying functions, it can work continuously, reduce cleaning cost, and improve plant hygiene and production safety.'),
+        $make('putty-powder-cleaning', '清洗腻子粉', '环保清洁行业', '清洁', '该工作站面向粉尘、腻子粉及生产现场清洁场景，通过自动化清洗设备与机器人执行机构协同，实现地面、设备表面及作业区域的高效清理。系统可根据现场环境调整清洗路径和作业强度，减少人工清洁强度，提升车间环境稳定性与生产安全性。', 'This workstation is built for dust, putty powder and industrial cleaning scenarios. Automated cleaning equipment works with robotic actuators to clean floors, equipment surfaces and work areas efficiently. The system adjusts routes and intensity by site conditions, reduces manual cleaning workload, and improves workshop hygiene and production safety.'),
+        $make('industrial-cleaning-robot', '工业清洁机器人', '环保清洁行业', '清洁', '该机器人专为工业环境设计，实现地面、设备及生产区域的全自动清洁。配备高精度传感器与路径规划系统，能够自主识别障碍物、规划最优清洁路线，并根据不同地面材质调整清洁模式。机器人具备高效吸尘、拖地及喷洒功能，可连续工作长时间，显著降低人工清洁成本，提高厂区卫生水平和生产安全性，适用于工厂车间、仓储及大型生产线环境。', 'This robot is designed for industrial environments and automatically cleans floors, equipment and production areas. High-precision sensors and path planning allow it to detect obstacles, plan efficient routes and adjust cleaning modes by floor material. With vacuuming, mopping and spraying functions, it can work continuously, reduce cleaning cost, and improve plant hygiene and production safety.'),
         $make('coffee-robot', '咖啡机器人', '服务行业', '搬运', '咖啡机器人用于咖啡制备及配送自动化，配备智能视觉识别与精密操作系统，可自动识别咖啡原料、控制研磨、萃取和拉花等流程。机器人可实现标准化操作，保证每杯咖啡口感一致，同时支持多种饮品定制。全自动化操作不仅提高服务效率，减少人为失误，还可在咖啡店、餐饮连锁或办公室环境中实现高效生产和智能化管理。', 'The coffee robot automates coffee preparation and delivery. Intelligent vision recognition and precision operation systems identify ingredients and control grinding, extraction and latte art. Standardized operation keeps taste consistent while supporting multiple drink options. Full automation improves service efficiency, reduces human error, and supports smart production and management in coffee shops, restaurant chains and offices.'),
         $make('humanoid-workstation', '人形机器人工作站', '智能制造', '搬运', '本工作站采用先进的人形机器人系统，可模拟人工动作执行各类作业任务，如焊接、搬运、装配及打磨等。机器人具备灵活关节与高精度传感器，能够适应复杂、狭小或不规则工件，实现多工序协同作业。', 'This workstation uses an advanced humanoid robot system that simulates human motions to perform tasks such as welding, handling, assembly and grinding. Flexible joints and high-precision sensors allow it to adapt to complex, narrow or irregular workpieces and complete coordinated multi-process operations.'),
     ];
@@ -2661,6 +3083,7 @@ function chenxuan_case_media_map() {
         'steel-structure-welding' => $with_video('steel-structure-welding'),
         'cobot-steel-welding' => $with_video('cobot-steel-welding'),
         'hull-welding' => $with_video('hull-welding'),
+        'putty-powder-cleaning' => $with_video('putty-powder-cleaning'),
         'industrial-cleaning-robot' => $with_video('industrial-cleaning-robot'),
     ];
 }
@@ -2710,7 +3133,7 @@ function chenxuan_news_items() {
     ]);
 
     $images = [
-        chenxuan_home_asset_url('fit/news/news-01.jpg'),
+        chenxuan_home_asset_url('fit/news/painting-solution.png'),
         chenxuan_home_asset_url('fit/news/news-02.jpg'),
         chenxuan_home_asset_url('fit/industries/agv-logistics.jpg'),
         chenxuan_home_asset_url('fit/industries/smart-commerce.jpg'),
@@ -2747,6 +3170,7 @@ function chenxuan_i18n_override($key, $lang = 'zh') {
         'btn_consult' => '在线咨询',
         'btn_login' => '登录',
         'btn_register' => '注册',
+        'btn_logout' => '退出',
         'btn_search' => '搜索',
         'learn_more' => '了解更多',
         'explore_more' => '探索更多',
@@ -2922,6 +3346,7 @@ function chenxuan_i18n_override($key, $lang = 'zh') {
         'btn_consult' => 'Consult Online',
         'btn_login' => 'Log in',
         'btn_register' => 'Register',
+        'btn_logout' => 'Log out',
         'btn_search' => 'Search',
         'learn_more' => 'Learn More',
         'explore_more' => 'Explore More',
@@ -3097,10 +3522,10 @@ function chenxuan_i18n_override($key, $lang = 'zh') {
     ];
 
     if ($lang === 'zh_tw') {
-        return isset($zh[$key]) ? chenxuan_to_traditional($zh[$key]) : null;
+        return isset($zh[$key]) ? chenxuan_to_traditional(chenxuan_normalize_brand_copy($zh[$key])) : null;
     }
     if ($lang === 'zh') {
-        return $zh[$key] ?? null;
+        return isset($zh[$key]) ? chenxuan_normalize_brand_copy($zh[$key]) : null;
     }
     if (in_array($lang, ['en', 'en_eu'], true)) {
         return $en[$key] ?? null;

@@ -5,11 +5,16 @@
 /* ── 1440px and below ── */
 @media (max-width: 1440px) {
     :root { --container-max: 1200px; }
-    .header-container { padding: 0 24px; gap: 14px; }
-    .site-logo { margin-right: 14px; }
-    .logo-text { font-size: 26px; letter-spacing: 2px; }
-    .nav-menu > .menu-item { margin-right: 16px; }
-    .nav-menu > .menu-item > a { font-size: 14px; }
+    .header-container {
+        grid-template-columns: clamp(132px, 10vw, 160px) minmax(600px, 1fr) auto;
+        padding: 0 24px;
+        column-gap: clamp(26px, 2.4vw, 42px);
+    }
+    .site-logo { margin-right: 0; }
+    .logo-text { font-size: 34px; letter-spacing: 2px; }
+    .nav-menu { gap: clamp(22px, 2vw, 34px); }
+    .nav-menu > .menu-item { margin-right: 0; }
+    .nav-menu > .menu-item > a { font-size: 16px; }
     .header-right .language-switcher,
     .header-search-btn { margin-right: 10px; }
     .lang-btn { gap: 6px; font-size: 14px; }
@@ -17,6 +22,51 @@
     .lang-arrow { width: 10px; }
     .header-auth { padding: 0 8px; }
     .header-auth a { font-size: 13px; }
+    .site-header--latin .header-container {
+        grid-template-columns: clamp(160px, 13vw, 205px) minmax(0, 1fr) auto;
+        column-gap: 16px;
+    }
+    .site-header--latin .logo-text { font-size: 30px; letter-spacing: 1px; }
+    .site-header--latin .nav-menu {
+        justify-content: space-between;
+        gap: clamp(14px, 1.25vw, 22px);
+    }
+    .site-header--latin .nav-menu > .menu-item > a {
+        font-size: 13px;
+        gap: 5px;
+    }
+    .site-header--latin .nav-hot-badge {
+        min-width: 31px;
+        height: 17px;
+        padding: 0 5px;
+        font-size: 9px;
+    }
+    .site-header--latin .lang-btn {
+        max-width: 92px;
+        overflow: hidden;
+        font-size: 13px;
+    }
+    .site-header--latin .lang-btn span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .mega-menu-panel--product-cards .mega-menu-inner {
+        max-width: calc(100vw - 96px);
+    }
+    .mega-product-grid {
+        row-gap: 16px;
+        column-gap: 24px;
+    }
+    .mega-product-card {
+        padding: 6px 8px 8px;
+    }
+    .mega-product-title {
+        min-height: 24px;
+        font-size: 16px;
+    }
+    .mega-product-brand {
+        font-size: 15px;
+    }
     .hero-title { font-size: 56px; }
     .section-title { font-size: 36px; }
     .footer-grid { gap: 30px; }
@@ -25,21 +75,46 @@
 /* ── 1320px and below: keep long translated navs inside laptop widths ── */
 @media (max-width: 1320px) {
     .header-auth { display: none; }
-    .header-container { gap: 14px; }
-    .nav-menu > .menu-item { margin-right: 16px; }
-    .nav-menu > .menu-item > a { font-size: 14px; }
+    .header-container {
+        grid-template-columns: clamp(120px, 9vw, 144px) minmax(0, 1fr) auto;
+        column-gap: 24px;
+    }
+    .nav-menu { gap: 20px; }
+    .nav-menu > .menu-item { margin-right: 0; }
+    .nav-menu > .menu-item > a { font-size: 16px; }
+    .site-header--latin .header-container {
+        grid-template-columns: 150px minmax(0, 1fr) auto;
+        column-gap: 14px;
+    }
+    .site-header--latin .logo-text { font-size: 28px; }
+    .site-header--latin .nav-menu { justify-content: space-between; gap: 12px; }
+    .site-header--latin .nav-menu > .menu-item > a { font-size: 12.5px; }
 }
 
 /* ── 1200px and below ── */
 @media (max-width: 1200px) {
     :root { --container-max: 960px; }
-    .site-logo { margin-right: 10px; }
-    .nav-menu > .menu-item { margin-right: 14px; }
-    .nav-menu > .menu-item > a { font-size: 14px; }
+    .header-container {
+        grid-template-columns: 120px minmax(0, 1fr) auto;
+        column-gap: 20px;
+    }
+    .site-logo { margin-right: 0; }
+    .nav-menu { gap: 18px; }
+    .nav-menu > .menu-item { margin-right: 0; }
+    .nav-menu > .menu-item > a { font-size: 15px; }
+    .site-header--latin .nav-menu { justify-content: space-between; gap: 10px; }
+    .site-header--latin .nav-menu > .menu-item > a { font-size: 12px; }
     .hero-title { font-size: 48px; }
     .footer-grid { grid-template-columns: 2fr repeat(3, 1fr); }
     .footer-col:nth-child(n+7) { display: none; }
     .mega-menu-inner { gap: 30px; }
+    .mega-menu-panel--product-cards .mega-menu-inner {
+        width: min(86vw, 960px);
+        max-width: calc(100vw - 48px);
+    }
+    .mega-product-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
     .service-card-content h3 { font-size: 24px; }
 }
 
@@ -51,6 +126,10 @@
     }
 
     /* Header */
+    .header-container {
+        display: flex;
+        justify-content: space-between;
+    }
     .main-nav { display: none; }
     .mobile-menu-toggle { display: flex; }
     .mobile-menu { display: block; }
@@ -59,6 +138,9 @@
     .header-right .header-auth { display: none; }
     .site-header {
         background: rgba(255,255,255,0.95);
+    }
+    .site-header .logo-text {
+        font-size: 28px;
     }
 
     /* Hero */
@@ -86,7 +168,8 @@
 
     /* Solutions */
     .solutions-section { padding: 80px 0; }
-    .solution-card { height: 360px; }
+    .solution-card,
+    .home-solutions-section .solution-card { height: 360px; }
 
     /* Service */
     .service-section { padding: 80px 0; }
@@ -143,9 +226,12 @@
     .product-tab { padding: 10px 18px; font-size: 13px; }
     .product-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
 
-    .solution-card { height: 320px; }
-    .solution-card-content { padding: 28px 24px; }
-    .solution-title { font-size: 20px; }
+    .solution-card,
+    .home-solutions-section .solution-card { height: 320px; }
+    .solution-card-content,
+    .home-solutions-section .solution-card-content { padding: 28px 24px; }
+    .solution-title,
+    .home-solutions-section .solution-title { font-size: 20px; }
 
     .service-card-content { padding: 28px; }
     .service-card-content h3 { font-size: 22px; }
@@ -447,7 +533,8 @@
         padding-left: 20px;
     }
 
-    .solution-card {
+    .solution-card,
+    .home-solutions-section .solution-card {
         height: 360px;
     }
 
@@ -559,15 +646,18 @@
         height: 220px;
     }
 
-    .solution-card {
+    .solution-card,
+    .home-solutions-section .solution-card {
         height: 330px;
     }
 
-    .solution-card-content {
+    .solution-card-content,
+    .home-solutions-section .solution-card-content {
         padding: 24px 20px;
     }
 
-    .solution-desc {
+    .solution-desc,
+    .home-solutions-section .solution-desc {
         max-width: 100%;
     }
 

@@ -1,13 +1,96 @@
-<?php
+﻿<?php
 /**
  * Chenxuan Robotics Theme Functions
  */
 
 if (!defined('ABSPATH')) exit;
 
-define('JAKA_VERSION', '2.0.9');
+define('JAKA_VERSION', '2.0.96');
 define('JAKA_DIR', get_template_directory());
 define('JAKA_URI', get_template_directory_uri());
+
+function chenxuan_hide_subscriber_admin_bar($show) {
+    if (!is_admin() && is_user_logged_in() && !current_user_can('edit_posts')) {
+        return false;
+    }
+
+    return $show;
+}
+add_filter('show_admin_bar', 'chenxuan_hide_subscriber_admin_bar');
+
+function chenxuan_auth_redirect_target($redirect_to = '') {
+    $redirect_to = is_string($redirect_to) ? wp_unslash($redirect_to) : '';
+    $home_url = home_url('/');
+
+    if (trim($redirect_to) === '') {
+        return $home_url;
+    }
+
+    $validated = wp_validate_redirect($redirect_to, $home_url);
+    if (!$validated) {
+        return $home_url;
+    }
+
+    $path = wp_parse_url($validated, PHP_URL_PATH);
+    $path = is_string($path) ? trim($path, '/') : '';
+    if (in_array($path, ['login', 'register'], true)) {
+        return $home_url;
+    }
+
+    return $validated;
+}
+
+function chenxuan_protected_download_url($file, $mode = 'download') {
+    $file = basename((string) $file);
+    $url = add_query_arg([
+        'action' => 'chenxuan_download',
+        'file'   => $file,
+        'mode'   => $mode === 'inline' ? 'inline' : 'download',
+    ], admin_url('admin-post.php'));
+
+    return wp_nonce_url($url, 'chenxuan_download_' . $file);
+}
+
+function chenxuan_handle_protected_download() {
+    if (!is_user_logged_in()) {
+        $login_url = add_query_arg('redirect_to', home_url('/download'), home_url('/login'));
+        wp_safe_redirect($login_url);
+        exit;
+    }
+
+    $file = isset($_GET['file']) ? basename(sanitize_file_name(wp_unslash($_GET['file']))) : '';
+    if ($file === '') {
+        wp_die(esc_html__('下载文件不存在。', 'jaka-theme'), '', ['response' => 404]);
+    }
+
+    check_admin_referer('chenxuan_download_' . $file);
+
+    $uploads = wp_upload_dir();
+    $download_dir = trailingslashit($uploads['basedir']) . 'chenxuan/downloads';
+    $real_dir = realpath($download_dir);
+    $real_file = realpath(trailingslashit($download_dir) . $file);
+
+    if (!$real_dir || !$real_file || strpos($real_file, $real_dir . DIRECTORY_SEPARATOR) !== 0 || !is_file($real_file)) {
+        wp_die(esc_html__('下载文件不存在。', 'jaka-theme'), '', ['response' => 404]);
+    }
+
+    $mode = isset($_GET['mode']) && sanitize_key(wp_unslash($_GET['mode'])) === 'inline' ? 'inline' : 'attachment';
+
+    while (ob_get_level()) {
+        ob_end_clean();
+    }
+
+    nocache_headers();
+    header('Content-Type: application/pdf');
+    header('Content-Length: ' . filesize($real_file));
+    header('Content-Disposition: ' . $mode . '; filename="' . rawurlencode($file) . '"');
+    header('X-Content-Type-Options: nosniff');
+    header('X-Robots-Tag: noindex, nofollow, noarchive', true);
+    readfile($real_file);
+    exit;
+}
+add_action('admin_post_chenxuan_download', 'chenxuan_handle_protected_download');
+add_action('admin_post_nopriv_chenxuan_download', 'chenxuan_handle_protected_download');
 
 /* ── Theme Setup ── */
 function jaka_theme_setup() {
@@ -23,7 +106,7 @@ function jaka_theme_setup() {
     ]);
     add_theme_support('menus');
 
-    add_image_size('hero-banner', 1920, 1080, true);
+    add_image_size('hero-banner', 1920, 850, true);
     add_image_size('product-card', 600, 400, true);
     add_image_size('news-thumb', 400, 260, true);
     add_image_size('solution-card', 800, 500, true);
@@ -475,11 +558,21 @@ function jaka_svg_icon($name) {
     $icons = [
         'arrow-right' => '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10h12M12 6l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
         'arrow-left' => '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M16 10H4M8 6l-4 4 4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+        'download' => '<svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M10 3v9M6.5 8.5L10 12l3.5-3.5M4 15.5h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+        'lock' => '<svg width="18" height="18" viewBox="0 0 20 20" fill="none"><rect x="4" y="8.5" width="12" height="8" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M7 8.5V6a3 3 0 116 0v2.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
         'phone' => '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" stroke="currentColor" stroke-width="1.5"/></svg>',
         'email' => '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" fill="currentColor"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" fill="currentColor"/></svg>',
         'menu' => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
         'close' => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
         'globe' => '<svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="7.5" stroke="currentColor" stroke-width="1.5"/><path d="M1.5 9h15M9 1.5c2.07 2.34 3.24 5.37 3.24 7.5s-1.17 5.16-3.24 7.5c-2.07-2.34-3.24-5.37-3.24-7.5S6.93 3.84 9 1.5z" stroke="currentColor" stroke-width="1.5"/></svg>',
+        'badge-check' => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 3l2.1 1.4 2.5-.1.8 2.4 2.1 1.4-.8 2.4.8 2.4-2.1 1.4-.8 2.4-2.5-.1L12 18l-2.1-1.4-2.5.1-.8-2.4-2.1-1.4.8-2.4-.8-2.4 2.1-1.4.8-2.4 2.5.1L12 3z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M8.8 10.5l2.1 2.1 4.4-4.4M9 17.1L8 21l4-2 4 2-1-3.9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+        'users' => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="8" r="3" stroke="currentColor" stroke-width="1.6"/><path d="M3.5 19v-1.5A4.5 4.5 0 018 13h2a4.5 4.5 0 014.5 4.5V19M16 5.4a3 3 0 010 5.2M16.5 13.2a4.5 4.5 0 014 4.3V19" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+        'network' => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="5" r="2.5" stroke="currentColor" stroke-width="1.6"/><circle cx="5" cy="18" r="2.5" stroke="currentColor" stroke-width="1.6"/><circle cx="19" cy="18" r="2.5" stroke="currentColor" stroke-width="1.6"/><path d="M10.8 7.2L6.2 15.8M13.2 7.2l4.6 8.6M7.5 18h9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+        'building' => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 21V7l8-4v18M12 9h8v12M2 21h20" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 9h2M7 13h2M7 17h2M15 13h2M15 17h2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+        'award' => '<svg width="28" height="28" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M8.8 12.2L7 21l5-3 5 3-1.8-8.8M9.5 8l1.5 1.5L14.5 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+        'settings' => '<svg width="28" height="28" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M19.4 15a1.7 1.7 0 00.3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.6v.2h-4V21a1.7 1.7 0 00-1-1.6 1.7 1.7 0 00-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 00.3-1.9A1.7 1.7 0 003 14H2.8v-4H3a1.7 1.7 0 001.6-1 1.7 1.7 0 00-.3-1.9L4.2 7 7 4.2l.1.1a1.7 1.7 0 001.9.3A1.7 1.7 0 0010 3v-.2h4V3a1.7 1.7 0 001 1.6 1.7 1.7 0 001.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 00-.3 1.9 1.7 1.7 0 001.6 1h.2v4H21a1.7 1.7 0 00-1.6 1z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+        'globe-large' => '<svg width="28" height="28" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9S14.5 18.3 12 21c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+        'handshake' => '<svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M8.5 12.5l2.1 2.1a2 2 0 002.8 0l3.1-3.1M4 8l3-3 4 1 2-1 4 1 3 3M3 9l3 3-2 2-3-3 2-2zM21 9l-3 3 2 2 3-3-2-2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 12l-1 1a1.4 1.4 0 002 2l1-1M9 14l-1 1a1.4 1.4 0 002 2l1-1M11 16l-.5.5a1.4 1.4 0 002 2l1.2-1.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
     ];
     return isset($icons[$name]) ? $icons[$name] : '';
 }

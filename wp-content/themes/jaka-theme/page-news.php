@@ -12,6 +12,15 @@ $cx_text = static function ($zh, $en = '') {
     return $zh;
 };
 
+$cx_auto = static function ($text) {
+    $text = trim((string) $text);
+    if ($text === '') {
+        return '';
+    }
+
+    return function_exists('chenxuan_l') ? chenxuan_l($text) : $text;
+};
+
 $filter_labels = [
     'all' => $cx_text('全部', 'All'),
     'project' => $cx_text('项目洞察', 'Project Insights'),
@@ -89,8 +98,8 @@ if ($legacy_news->have_posts()) {
         $title = get_the_title($post_id);
         $filter = $classify_news($title, $excerpt, $content);
         $news_items[] = [
-            'title' => $title,
-            'excerpt' => $excerpt,
+            'title' => $cx_auto($title),
+            'excerpt' => $cx_auto($excerpt),
             'date' => get_the_date('Y.m.d', $post_id),
             'category' => $filter_labels[$filter],
             'filter' => $filter,

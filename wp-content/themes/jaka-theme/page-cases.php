@@ -5,9 +5,16 @@
 get_header();
 
 $industries = function_exists('chenxuan_case_industries') ? chenxuan_case_industries() : [];
-$case_fields = function_exists('chenxuan_case_fields') ? chenxuan_case_fields() : $industries;
+$case_fields = $industries;
 $applications = function_exists('chenxuan_case_applications') ? chenxuan_case_applications() : [];
 $cases = function_exists('chenxuan_case_items') ? chenxuan_case_items() : [];
+$allowed_case_industries = array_flip($industries);
+$cases = array_values(array_filter($cases, static function($case) {
+    return ($case['slug'] ?? '') !== 'agricultural-frame-welding-repeat';
+}));
+$cases = array_values(array_filter($cases, static function($case) use ($allowed_case_industries) {
+    return isset($allowed_case_industries[$case['industry'] ?? '']);
+}));
 $active_slug = isset($_GET['case']) ? sanitize_title(wp_unslash($_GET['case'])) : '';
 $active_case = null;
 
@@ -21,27 +28,19 @@ foreach ($cases as $case) {
 $fallback_hero = function_exists('chenxuan_home_asset_url')
     ? chenxuan_home_asset_url('fit/industries/automotive-parts.jpg')
     : trailingslashit(JAKA_URI) . 'assets/images/service-support/projects/project-automation-line.jpg';
-$case_hero_image = $fallback_hero;
-if ($active_case && !empty($active_case['media']['poster'])) {
-    $case_hero_image = $active_case['media']['poster'];
-} elseif (!empty($cases[0]['media']['poster'])) {
-    $case_hero_image = $cases[0]['media']['poster'];
-}
+$case_center_banner = add_query_arg(
+    'v',
+    JAKA_VERSION,
+    trailingslashit(JAKA_URI) . 'assets/images/service-support/banner/case-center-banner-1920x850.png'
+);
+$case_hero_image = $active_case && !empty($active_case['media']['poster'])
+    ? $active_case['media']['poster']
+    : ($active_case ? $fallback_hero : $case_center_banner);
 
 $pattern_url = function_exists('chenxuan_home_asset_url') ? chenxuan_home_asset_url('pattern/impgbg.png') : '';
 $cx = static function($zh, $en) {
     return function_exists('chenxuan_lx') ? chenxuan_lx($zh, $en) : $zh;
 };
-$series = [
-    $cx('全部', 'All'),
-    'ChenXuan Robot',
-    $cx('焊接机器人', 'Welding Robot'),
-    $cx('喷涂机器人', 'Spraying Robot'),
-    $cx('搬运、码垛机器人', 'Handling and Palletizing Robot'),
-    $cx('切割机器人', 'Cutting Robot'),
-    $cx('抛光机器人', 'Polishing Robot'),
-    $cx('折弯机器人', 'Bending Robot'),
-];
 ?>
 
 <div class="case-page-shell" style="<?php echo $pattern_url ? '--case-pattern:url(' . esc_url($pattern_url) . ');' : ''; ?>">
@@ -111,14 +110,6 @@ $series = [
             <div class="case-filter-layout" data-aos="fade-up">
                 <div class="case-brand-name"><?php echo esc_html(chenxuan_short_name()); ?></div>
                 <div class="case-filter-panel">
-                    <div class="case-filter-group">
-                        <strong><?php echo esc_html($cx('系列', 'Series')); ?></strong>
-                        <div class="case-filter-row case-filter-row-static">
-                            <?php foreach ($series as $idx => $item) : ?>
-                            <span class="case-chip <?php echo $idx === 0 ? 'active' : ''; ?>"><?php echo esc_html($item); ?></span>
-                            <?php endforeach; ?>
-                        </div>
-                    </div>
                     <div class="case-filter-group">
                         <strong><?php echo esc_html($cx('行业', 'Industry')); ?></strong>
                         <div class="case-filter-row">

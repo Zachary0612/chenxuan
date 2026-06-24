@@ -2,8 +2,10 @@
 /**
  * Template Name: 登录页面
  */
+$auth_redirect_to = chenxuan_auth_redirect_target(isset($_GET['redirect_to']) ? $_GET['redirect_to'] : '');
+
 if (is_user_logged_in()) {
-    wp_safe_redirect(home_url('/'));
+    wp_safe_redirect($auth_redirect_to);
     exit;
 }
 get_header();
@@ -17,6 +19,7 @@ get_header();
             <div class="auth-panel active" id="auth-panel-password">
                 <form class="auth-form" id="login-pwd-form" method="post">
                     <?php wp_nonce_field('jaka_login', 'jaka_login_nonce'); ?>
+                    <input type="hidden" name="redirect_to" value="<?php echo esc_attr($auth_redirect_to); ?>">
                     <div class="form-group">
                         <label class="form-label">
                             <svg width="14" height="15" viewBox="0 0 14 15" fill="none"><circle cx="7" cy="4" r="3" stroke="#333" stroke-width="1"/><path d="M1 14c0-3.3 2.7-6 6-6" stroke="#333" stroke-width="1"/></svg>
@@ -42,7 +45,7 @@ get_header();
             </div>
 
             <div class="auth-footer-links">
-                <span><?php echo esc_html(jaka_t('auth_new_user')); ?><a href="<?php echo esc_url(home_url('/register')); ?>"><?php echo esc_html(jaka_t('auth_register_link')); ?></a></span>
+                <span><?php echo esc_html(jaka_t('auth_new_user')); ?><a href="<?php echo esc_url(add_query_arg('redirect_to', $auth_redirect_to, home_url('/register'))); ?>"><?php echo esc_html(jaka_t('auth_register_link')); ?></a></span>
                 <a href="<?php echo esc_url(wp_lostpassword_url()); ?>" class="forgot-link"><?php echo esc_html(jaka_t('auth_forgot')); ?></a>
             </div>
         </div>

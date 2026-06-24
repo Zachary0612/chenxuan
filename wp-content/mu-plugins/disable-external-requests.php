@@ -26,8 +26,20 @@ add_filter('http_request_timeout', function($timeout) {
 
 // ═══ 2. Disable unused heavy plugins on frontend ═══
 add_filter('option_active_plugins', function($plugins) {
-    // Only disable on frontend, keep active in admin & WP-CLI
-    if (is_admin() || (defined('DOING_AJAX') && DOING_AJAX) || (defined('WP_CLI') && WP_CLI)) {
+    $is_ajax = defined('DOING_AJAX') && DOING_AJAX;
+    $ajax_action = $is_ajax && isset($_REQUEST['action']) ? sanitize_key(wp_unslash($_REQUEST['action'])) : '';
+    $lightweight_ajax_actions = [
+        'jaka_send_sms',
+        'jaka_login_sms',
+        'jaka_login_pwd',
+        'jaka_register',
+        'jaka_logout',
+        'chenxuan_submit_lead',
+    ];
+    $is_theme_ajax = $is_ajax && in_array($ajax_action, $lightweight_ajax_actions, true);
+
+    // Keep plugins in wp-admin/editor/CLI, but skip them for the theme's own AJAX endpoints.
+    if ((is_admin() && !$is_theme_ajax) || ($is_ajax && !$is_theme_ajax) || (defined('WP_CLI') && WP_CLI)) {
         return $plugins;
     }
     // Also keep if REST API request (Elementor editor uses REST)

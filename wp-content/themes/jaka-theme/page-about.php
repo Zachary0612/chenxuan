@@ -8,6 +8,9 @@ $about_asset = static function($path) {
     return add_query_arg('v', JAKA_VERSION, trailingslashit(JAKA_URI) . 'assets/images/about/' . ltrim((string) $path, '/'));
 };
 
+$chenxuan_phone = '13802728597';
+$chenxuan_email = 'info@industry-robots.com';
+
 $values = [
     ['title' => chenxuan_lx('企业宗旨', 'Purpose'), 'body' => chenxuan_lx('以智能机器人技术推动制造业升级，为客户创造更高价值。', 'Use intelligent robot technology to upgrade manufacturing and create greater value for customers.')],
     ['title' => chenxuan_lx('发展愿景', 'Vision'), 'body' => chenxuan_lx('成为全球领先的智能制造与机器人自动化解决方案服务商。', 'Become a leading global service provider for smart manufacturing and robotic automation solutions.')],
@@ -15,16 +18,58 @@ $values = [
 ];
 
 $stats = [
-    ['value' => '26', 'unit' => chenxuan_lx('年', 'Years'), 'label' => chenxuan_lx('行业资质', 'Industry Qualification')],
-    ['value' => '200+', 'unit' => '', 'label' => chenxuan_lx('技术人员', 'Technical Team')],
-    ['value' => '40+', 'unit' => '', 'label' => chenxuan_lx('行业覆盖', 'Industry Coverage')],
-    ['value' => '100+', 'unit' => '', 'label' => chenxuan_lx('服务企业客户', 'Enterprise Customers')],
+    ['value' => '26', 'unit' => chenxuan_lx('年', 'Years'), 'label' => chenxuan_lx('行业资质', 'Industry Qualification'), 'icon' => 'award'],
+    ['value' => '200+', 'unit' => '', 'label' => chenxuan_lx('技术人员', 'Technical Team'), 'icon' => 'settings'],
+    ['value' => '40+', 'unit' => '', 'label' => chenxuan_lx('行业覆盖', 'Industry Coverage'), 'icon' => 'globe-large'],
+    ['value' => '100+', 'unit' => '', 'label' => chenxuan_lx('服务企业客户', 'Enterprise Customers'), 'icon' => 'handshake'],
+];
+
+$testimonials = [
+    chenxuan_lx('辰轩机器人让我们焊接产线更稳定，批量生产效率大幅提升。', 'ChenXuan robots made our welding line more stable and greatly improved batch production efficiency.'),
+    chenxuan_lx('方案对接、现场调试阶段团队响应迅速，设备运行表现出色。', 'The team responded quickly during solution coordination and on-site commissioning, and the equipment performs exceptionally well.'),
+    chenxuan_lx('我们对辰轩焊接机器人十分满意，焊接品质稳定统一，出货效率明显提高。', 'We are very satisfied with ChenXuan welding robots. Welding quality is consistent and shipping efficiency has improved significantly.'),
+    chenxuan_lx('从方案设计到设备调试，工程师提供快速支持。', 'Engineers provided fast support from solution design through equipment commissioning.'),
+    chenxuan_lx('使用辰轩机器人后，车间生产稳定性大幅升级。团队沟通、现场服务高效，设备全天稳定运行。', 'After adopting ChenXuan robots, workshop stability improved substantially. Communication and on-site service were efficient, and the equipment runs reliably all day.'),
+    chenxuan_lx('辰轩机器人有效减少焊接返修，加快批量订单交付。项目洽谈、现场调试全程团队响应及时。', 'ChenXuan robots reduced welding rework and accelerated batch order delivery. The team responded promptly throughout project discussions and commissioning.'),
+    chenxuan_lx('辰轩机器人运行稳定，为焊接产线提升产能。', 'ChenXuan robots run reliably and increase welding line capacity.'),
+    chenxuan_lx('沟通方案、现场调机时，专业团队能快速解决各类问题。', 'During solution discussions and on-site setup, the professional team quickly resolved a wide range of issues.'),
+    chenxuan_lx('辰轩自动化方案帮助我们缩短换型时间，生产节拍更加可控。', 'ChenXuan automation solutions shortened changeover time and made our production rhythm more controllable.'),
+    chenxuan_lx('设备交付后运行平稳，售后团队持续跟进，问题处理及时。', 'The equipment has operated smoothly since delivery, with attentive after-sales follow-up and timely issue resolution.'),
+    chenxuan_lx('焊缝成形稳定，操作培训清晰，项目很快进入量产。', 'Weld formation is consistent, operator training was clear, and the project moved into mass production quickly.'),
+    chenxuan_lx('项目周期安排合理，现场工程师专业，产线升级效果超出预期。', 'The project schedule was well managed, the on-site engineers were professional, and the line upgrade exceeded expectations.'),
 ];
 
 $offices = [
-    ['city' => chenxuan_lx('济南', 'Jinan'), 'address' => chenxuan_lx('山东省济南市历城区工业北路中电建能源谷4-B-4', '4-B-4, Zhongdian Energy Valley, Gongye North Road, Licheng District, Jinan City, Shandong Province')],
-    ['city' => chenxuan_lx('西安', 'Xi’an'), 'address' => chenxuan_lx('西安市灞桥区秦汉大道2288号创新产业基地1期4号楼102', 'Room 102, Building 4, Phase 1 Innovation Industrial Base, No. 2288 Qinhan Avenue, Baqiao District, Xi’an')],
-    ['city' => chenxuan_lx('杭州', 'Hangzhou'), 'address' => chenxuan_lx('杭州市余杭区五常街道郭家兜路8号', 'No. 8 Guojiadou Road, Wuchang Street, Yuhang District, Hangzhou')],
+    [
+        'id' => 'jinan',
+        'city' => chenxuan_lx('济南', 'Jinan'),
+        'label' => chenxuan_lx('中国济南', 'Jinan, China'),
+        'address' => chenxuan_lx('山东省济南市历城区工业北路中电建能源谷4-B-4', '4-B-4, Zhongdian Energy Valley, Gongye North Road, Licheng District, Jinan City, Shandong Province'),
+        'pin_x' => '82.53%',
+        'pin_y' => '29.64%',
+        'map_x' => '0%',
+        'map_y' => '0%',
+    ],
+    [
+        'id' => 'xian',
+        'city' => chenxuan_lx('西安', 'Xi’an'),
+        'label' => chenxuan_lx('中国西安', 'Xi’an, China'),
+        'address' => chenxuan_lx('西安市灞桥区秦汉大道2288号创新产业基地1期4号楼102', 'Room 102, Building 4, Phase 1 Innovation Industrial Base, No. 2288 Qinhan Avenue, Baqiao District, Xi’an'),
+        'pin_x' => '80.26%',
+        'pin_y' => '30.92%',
+        'map_x' => '0%',
+        'map_y' => '0%',
+    ],
+    [
+        'id' => 'hangzhou',
+        'city' => chenxuan_lx('杭州', 'Hangzhou'),
+        'label' => chenxuan_lx('中国杭州', 'Hangzhou, China'),
+        'address' => chenxuan_lx('杭州市余杭区五常街道郭家兜路8号', 'No. 8 Guojiadou Road, Wuchang Street, Yuhang District, Hangzhou'),
+        'pin_x' => '83.37%',
+        'pin_y' => '33.18%',
+        'map_x' => '0%',
+        'map_y' => '0%',
+    ],
 ];
 
 $timeline = [
@@ -42,7 +87,7 @@ $timeline_phases = [
     ['title' => chenxuan_lx('产品场景化', 'Scenario Productization'), 'period' => '2016-2017', 'index' => 2],
     ['title' => chenxuan_lx('市场化&规模化', 'Marketization & Scale'), 'period' => '2018-2019', 'index' => 3],
     ['title' => chenxuan_lx('全球化平台建设', 'Global Platform'), 'period' => '2020-2021', 'index' => 4],
-    ['title' => chenxuan_lx('产业链生态建立', 'Industrial Ecosystem'), 'period' => '2022-至今', 'index' => 5],
+    ['title' => chenxuan_lx('产业链生态建立', 'Industrial Ecosystem'), 'period' => chenxuan_lx('2022-至今', '2022-Present'), 'index' => 5],
 ];
 
 $timeline = [
@@ -74,11 +119,21 @@ $timeline = [
 
 <section class="about-values">
     <div class="container">
+        <h2 class="about-values-title" data-aos="fade-up">
+            <?php echo esc_html(chenxuan_lx('全球领先的智能制造与机器人自动化公司', 'A Leading Smart Manufacturing and Robotic Automation Company')); ?>
+        </h2>
+        <?php
+        $value_display_titles = [
+            chenxuan_lx('公司使命', 'Mission'),
+            chenxuan_lx('公司愿景', 'Vision'),
+            chenxuan_lx('核心价值观', 'Core Values'),
+        ];
+        ?>
         <div class="about-value-grid">
             <?php foreach ($values as $idx => $value) : ?>
-            <article class="about-value-card" data-card-number="<?php echo esc_attr(str_pad((string) ($idx + 1), 2, '0', STR_PAD_LEFT)); ?>" data-aos="fade-up" data-aos-delay="<?php echo esc_attr($idx * 90); ?>">
+            <article class="about-value-card" data-card-number="<?php echo esc_attr(str_pad((string) ($idx + 1), 2, '0', STR_PAD_LEFT)); ?>" data-aos="fade-up" data-aos-delay="<?php echo esc_attr($idx * 90); ?>" tabindex="0">
                 <span><?php echo esc_html(str_pad((string) ($idx + 1), 2, '0', STR_PAD_LEFT)); ?></span>
-                <h2><?php echo esc_html($value['title']); ?></h2>
+                <h2><?php echo esc_html($value_display_titles[$idx] ?? $value['title']); ?></h2>
                 <p><?php echo esc_html($value['body']); ?></p>
             </article>
             <?php endforeach; ?>
@@ -91,7 +146,7 @@ $timeline = [
         <div class="about-intro-grid">
             <div class="about-intro-text" data-aos="fade-right">
                 <span class="section-label"><?php echo esc_html(chenxuan_lx('辰轩简介', 'ChenXuan Profile')); ?></span>
-                <h2 class="section-title"><?php echo esc_html(jaka_t('pg_about_intro')); ?></h2>
+                <h2 class="section-title"><?php echo esc_html(chenxuan_lx('辰轩机器人简介', 'ChenXuan Robotics Profile')); ?></h2>
                 <p><?php echo esc_html(chenxuan_intro_primary()); ?></p>
                 <p><?php echo esc_html(chenxuan_intro_secondary()); ?></p>
                 <p><?php echo esc_html(chenxuan_lx('我们的产品出口到100多个国家，已服务数千家企业。凭借多项专业认证，我们深受全球客户的信赖。我们将会为您提供专业的工业自动化一站式解决方案，真诚期待与您的合作！', 'Our products are exported to more than 100 countries and have served thousands of enterprises. With multiple professional certifications, we are trusted by global customers and look forward to providing professional one-stop industrial automation solutions.')); ?></p>
@@ -114,6 +169,7 @@ $timeline = [
             $stat_suffix = preg_replace('/[0-9]/', '', (string) $stat['value']);
             ?>
             <div class="stat-item" data-aos="fade-up" data-aos-delay="<?php echo esc_attr(($idx + 1) * 80); ?>">
+                <div class="stat-icon" aria-hidden="true"><?php echo jaka_svg_icon($stat['icon']); ?></div>
                 <div class="stat-number" data-count="<?php echo esc_attr($stat_count); ?>" data-count-suffix="<?php echo esc_attr($stat_suffix); ?>">
                     <span class="stat-count"><?php echo esc_html($stat_count); ?></span>
                     <?php if ($stat_suffix !== '') : ?><span class="stat-suffix"><?php echo esc_html($stat_suffix); ?></span><?php endif; ?>
@@ -132,16 +188,41 @@ $timeline = [
             <span class="section-label"><?php echo esc_html(chenxuan_lx('服务网络', 'Service Network')); ?></span>
             <h2 class="section-title"><?php echo esc_html(chenxuan_lx('用智能机器人提升效率，让生产更简单、更高效', 'Use Intelligent Robots to Make Production Simpler and More Efficient')); ?></h2>
         </div>
-        <div class="about-office-layout">
+        <div class="about-office-layout" data-office-map style="--office-map-bg: url('<?php echo esc_url($about_asset('world-map.png')); ?>');">
             <div class="about-office-image" data-aos="fade-right">
-                <img src="<?php echo esc_url($about_asset('building-clean.jpg')); ?>" alt="<?php echo esc_attr(chenxuan_lx('辰轩服务网络', 'ChenXuan service network')); ?>" loading="lazy">
+                <img src="<?php echo esc_url($about_asset('world-map.png')); ?>" alt="<?php echo esc_attr(chenxuan_lx('辰轩服务网络', 'ChenXuan service network')); ?>" loading="lazy">
+                <div class="about-office-map-layer" aria-hidden="true"></div>
+                <div class="about-office-pins" aria-hidden="true">
+                    <?php foreach ($offices as $idx => $office) : ?>
+                    <span
+                        class="about-office-pin <?php echo $idx === 0 ? 'is-active' : ''; ?>"
+                        data-office-pin="<?php echo esc_attr($office['id']); ?>"
+                        style="--pin-x: <?php echo esc_attr($office['pin_x']); ?>; --pin-y: <?php echo esc_attr($office['pin_y']); ?>;"
+                    >
+                        <span><?php echo esc_html($office['label']); ?></span>
+                    </span>
+                    <?php endforeach; ?>
+                </div>
             </div>
-            <span class="about-office-main-pin"><?php echo esc_html(chenxuan_lx('中国济南', 'Jinan, China')); ?></span>
             <div class="about-office-list" data-aos="fade-left">
-                <?php foreach ($offices as $office) : ?>
-                <article class="about-office-card">
+                <?php foreach ($offices as $idx => $office) : ?>
+                <article
+                    class="about-office-card <?php echo $idx === 0 ? 'is-active' : ''; ?>"
+                    data-office-card="<?php echo esc_attr($office['id']); ?>"
+                    data-map-x="<?php echo esc_attr($office['map_x']); ?>"
+                    data-map-y="<?php echo esc_attr($office['map_y']); ?>"
+                    tabindex="0"
+                    role="button"
+                    aria-pressed="<?php echo $idx === 0 ? 'true' : 'false'; ?>"
+                    aria-expanded="false"
+                >
+                    <span class="about-office-index"><?php echo esc_html(str_pad((string) ($idx + 1), 2, '0', STR_PAD_LEFT)); ?></span>
                     <h3><?php echo esc_html($office['city']); ?></h3>
-                    <p><?php echo esc_html($office['address']); ?></p>
+                    <div class="about-office-detail">
+                        <p class="about-office-address"><?php echo esc_html($office['address']); ?></p>
+                        <p class="about-office-phone"><?php echo jaka_svg_icon('phone'); ?> <?php echo esc_html($chenxuan_phone); ?></p>
+                        <p class="about-office-email"><?php echo jaka_svg_icon('email'); ?> <?php echo esc_html($chenxuan_email); ?></p>
+                    </div>
                 </article>
                 <?php endforeach; ?>
             </div>
@@ -152,8 +233,8 @@ $timeline = [
 <section class="about-timeline about-timeline-assets">
     <div class="container">
         <div class="section-header" data-aos="fade-up">
-            <span class="section-label"><?php echo esc_html(chenxuan_lx('公司历程', 'Milestones')); ?></span>
-            <h2 class="section-title"><?php echo esc_html(chenxuan_lx('持续深耕机器人自动化集成', 'Continuously Developing Robotic Automation Integration')); ?></h2>
+            <span class="section-label"><?php echo esc_html(chenxuan_lx('发展历程', 'Development History')); ?></span>
+            <h2 class="section-title"><?php echo esc_html(chenxuan_lx('产品化、场景化、市场化、规模化高速发展', 'Rapid Growth Through Productization, Scenarios, Market Expansion and Scale')); ?></h2>
         </div>
         <div class="about-history-tabs" data-aos="fade-up" data-aos-delay="80">
             <?php foreach ($timeline_phases as $idx => $phase) : ?>
@@ -217,6 +298,29 @@ $timeline = [
             <img src="<?php echo esc_url($about_asset('certificates.jpg')); ?>" alt="<?php echo esc_attr(chenxuan_lx('辰轩认证证书', 'ChenXuan certificates')); ?>" loading="lazy">
             <img src="<?php echo esc_url($about_asset('certificate-community.jpg')); ?>" alt="<?php echo esc_attr(chenxuan_lx('辰轩资质证明', 'ChenXuan qualification certificate')); ?>" loading="lazy">
             <img src="<?php echo esc_url($about_asset('reviews.jpg')); ?>" alt="<?php echo esc_attr(chenxuan_lx('客户好评', 'Customer reviews')); ?>" loading="lazy">
+        </div>
+    </div>
+</section>
+
+<section class="about-testimonials">
+    <div class="container">
+        <div class="section-header about-testimonials-header" data-aos="fade-up">
+            <h2 class="section-title"><?php echo esc_html(chenxuan_lx('客户评价', 'Customer Reviews')); ?></h2>
+            <p><?php echo esc_html(chenxuan_lx('来自世界各地客户的信任', 'Trust from customers around the world')); ?></p>
+        </div>
+        <div class="about-testimonials-stage" aria-label="<?php echo esc_attr(chenxuan_lx('客户评价', 'Customer Reviews')); ?>">
+            <div class="about-testimonials-rings" aria-hidden="true"></div>
+            <div class="about-testimonials-brand"><?php echo esc_html(chenxuan_lx('辰轩', 'CHENXUAN')); ?></div>
+            <?php foreach ($testimonials as $idx => $testimonial) : ?>
+            <?php
+            $testimonial_group = (int) floor($idx / 6);
+            $testimonial_position = ($idx % 6) + 1;
+            ?>
+            <p class="about-testimonial-note note-<?php echo esc_attr($testimonial_position); ?><?php echo $testimonial_group === 0 ? ' is-active' : ''; ?>" data-testimonial-group="<?php echo esc_attr($testimonial_group); ?>">
+                <span aria-hidden="true"></span>
+                <?php echo esc_html($testimonial); ?>
+            </p>
+            <?php endforeach; ?>
         </div>
     </div>
 </section>
