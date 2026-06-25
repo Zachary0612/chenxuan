@@ -4170,3 +4170,21 @@ body.admin-bar .mega-menu-panel {
         grid-column: 1 / -1;
     }
 }
+
+/* v2.0.101: keep solution process links compact like JAKA's two-row menu. */
+.mega-menu-panel--solutions .mega-col:nth-child(2) .mega-links {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(72px, 1fr));
+    column-gap: clamp(24px, 2.4vw, 44px);
+    row-gap: 10px;
+    align-items: start;
+}
+
+.mega-menu-panel--solutions .mega-col:nth-child(2) .mega-links li {
+    margin-bottom: 0;
+}
+
+.mega-menu-panel--solutions .mega-col:nth-child(2) .mega-links .mega-case-link {
+    grid-column: 1 / -1;
+    margin-top: 18px;
+}

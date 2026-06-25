@@ -20,12 +20,22 @@ $solution_case_industry_map = [
     'environmental-cleaning' => '环保清洁行业',
 ];
 
+$solution_case_industry_map = [
+    'engineering-machinery' => '工程机械',
+    'automotive-parts' => '汽车及零部件',
+    'metal-fabrication' => '金属加工',
+    'ship-steel-structure' => '船舶和钢结构行业',
+    'environmental-cleaning' => '环保清洁行业',
+];
+
 $solution_by_slug = [];
 foreach ($solutions as $solution) {
     $solution_by_slug[$solution[2]] = $solution;
 }
 
 $requested_industry = isset($_GET['solution_industry']) ? sanitize_key(wp_unslash($_GET['solution_industry'])) : '';
+$requested_application = isset($_GET['solution_application']) ? sanitize_text_field(wp_unslash($_GET['solution_application'])) : '';
+$requested_application = in_array($requested_application, $case_applications, true) ? $requested_application : '';
 if (!$requested_industry && isset($_GET['industry'])) {
     $raw_industry = sanitize_text_field(wp_unslash($_GET['industry']));
     foreach ($solutions as $solution) {
@@ -38,6 +48,7 @@ if (!$requested_industry && isset($_GET['industry'])) {
 }
 $active_solution = $solution_by_slug[$requested_industry] ?? null;
 $visible_solutions = $active_solution ? [$active_solution] : $solutions;
+$solution_page_title = $active_solution ? $active_solution[0] : ($requested_application ?: jaka_t('pg_solutions_title'));
 
 $case_industry_lookup = [];
 $case_by_slug = [];
@@ -54,7 +65,17 @@ foreach ($cases as $case) {
         $application_video_cases[] = $case;
     }
 }
-$application_video_cases = array_slice($application_video_cases, 0, 9);
+if ($requested_application) {
+    $application_video_cases = array_values(array_filter($application_video_cases, static function($case) use ($requested_application) {
+        return ($case['application'] ?? '') === $requested_application;
+    }));
+} elseif ($active_solution) {
+    $active_case_industry = $solution_case_industry_map[$active_solution[2]] ?? $active_solution[0];
+    $application_video_cases = array_values(array_filter($application_video_cases, static function($case) use ($active_case_industry) {
+        return ($case['industry'] ?? '') === $active_case_industry;
+    }));
+}
+$application_video_cases = array_slice($application_video_cases, 0, $requested_application ? 12 : 9);
 
 $stations = [
     [
@@ -80,7 +101,7 @@ $stations = [
 ];
 ?>
 
-<div class="solutions-page-shell" style="<?php echo $pattern_url ? '--solutions-pattern:url(' . esc_url($pattern_url) . ');' : ''; ?>">
+<div class="solutions-page-shell<?php echo ($active_solution || $requested_application) ? ' is-detail-page' : ''; ?>" style="<?php echo $pattern_url ? '--solutions-pattern:url(' . esc_url($pattern_url) . ');' : ''; ?>">
     <section class="page-hero solutions-hero solutions-hero-light">
         <div class="page-hero-bg">
             <div class="hero-overlay"></div>
@@ -88,14 +109,16 @@ $stations = [
         <div class="container">
             <div class="page-hero-content" data-aos="fade-up">
                 <span class="section-label"><?php echo esc_html(chenxuan_lx('解决方案', 'Solutions')); ?></span>
-                <h1><?php echo esc_html(jaka_t('pg_solutions_title')); ?></h1>
+                <h1><?php echo esc_html($solution_page_title); ?></h1>
                 <p><?php echo esc_html(jaka_t('pg_solutions_desc')); ?></p>
             </div>
         </div>
     </section>
 
+    <?php if (!$requested_application) : ?>
     <section class="industry-section solutions-page-section" id="industry-scenarios">
         <div class="container">
+            <?php if (!$active_solution) : ?>
             <div class="section-header" data-aos="fade-up">
                 <span class="section-label"><?php echo esc_html(chenxuan_lx('细分行业', 'Industries')); ?></span>
                 <h2 class="section-title"><?php echo esc_html(jaka_t('pg_industry_title')); ?></h2>
@@ -103,6 +126,7 @@ $stations = [
                 <a href="<?php echo esc_url(home_url('/solutions/') . '#industry-scenarios'); ?>" class="solution-view-all-link"><?php echo esc_html(jaka_t('view_all')); ?></a>
                 <?php endif; ?>
             </div>
+            <?php endif; ?>
             <div class="solution-industry-showcase">
                 <?php foreach ($visible_solutions as $i => $solution) : ?>
                 <?php
@@ -116,6 +140,11 @@ $stations = [
                 $application_label = !empty($primary_case['application']) ? $primary_case['application'] : chenxuan_lx('行业方案', 'Industry Solution');
                 $headline = $primary_case ? $primary_case['title'] : $solution[0];
                 $body = $primary_case ? $primary_case['desc'] : $solution[1];
+                if ($active_solution) {
+                    $application_label = chenxuan_lx('行业简介', 'Industry Overview');
+                    $headline = $solution[0];
+                    $body = $solution[1];
+                }
                 ?>
                 <article class="solution-industry-row<?php echo $active_solution ? ' is-active-detail' : ''; ?>" data-aos="fade-up" data-aos-delay="<?php echo esc_attr(($i + 1) * 80); ?>" style="--industry-accent: <?php echo esc_attr($solution[3]); ?>">
                     <div class="solution-industry-copy">
@@ -153,22 +182,27 @@ $stations = [
             </div>
         </div>
     </section>
+    <?php endif; ?>
 
     <section class="application-section solutions-application-section" id="application-videos">
         <div class="container">
+            <?php if (!$requested_application) : ?>
             <div class="section-header" data-aos="fade-up">
                 <span class="section-label"><?php echo esc_html(chenxuan_lx('应用工艺', 'Applications')); ?></span>
-                <h2 class="section-title"><?php echo esc_html(jaka_t('pg_app_title')); ?></h2>
+                <h2 class="section-title"><?php echo esc_html($requested_application ?: jaka_t('pg_app_title')); ?></h2>
                 <p class="section-desc"><?php echo esc_html(chenxuan_lx('按焊接、喷涂、搬运、切割等工艺查看真实项目视频。', 'View real project videos by welding, spraying, handling, cutting and other processes.')); ?></p>
             </div>
+            <?php endif; ?>
+            <?php if (!$requested_application) : ?>
             <div class="solution-application-pills">
                 <?php foreach ($case_applications as $application) : ?>
-                <a href="<?php echo esc_url(add_query_arg('case_application', $application, home_url('/cases/')) . '#case-results'); ?>"><?php echo esc_html($application); ?></a>
+                <a href="<?php echo esc_url(add_query_arg('solution_application', $application, home_url('/solutions/')) . '#application-videos'); ?>"><?php echo esc_html($application); ?></a>
                 <?php endforeach; ?>
             </div>
+            <?php endif; ?>
             <div class="solution-video-grid">
                 <?php foreach ($application_video_cases as $i => $case) : ?>
-                <a href="<?php echo esc_url(add_query_arg('case_application', $case['application'], home_url('/cases/')) . '#case-results'); ?>" class="solution-video-card" data-aos="fade-up" data-aos-delay="<?php echo esc_attr(($i % 3) * 70); ?>">
+                <a href="<?php echo esc_url(add_query_arg('solution_application', $case['application'], home_url('/solutions/')) . '#application-videos'); ?>" class="solution-video-card" data-aos="fade-up" data-aos-delay="<?php echo esc_attr(($i % 3) * 70); ?>">
                     <video muted playsinline preload="metadata" poster="<?php echo esc_url($case['media']['poster'] ?? ''); ?>">
                         <source src="<?php echo esc_url($case['media']['video']); ?>" type="video/mp4">
                     </video>
@@ -180,6 +214,7 @@ $stations = [
         </div>
     </section>
 
+    <?php if (!$requested_application) : ?>
     <section class="workstation-section solutions-workstation-section">
         <div class="container">
             <div class="section-header" data-aos="fade-up">
@@ -207,7 +242,9 @@ $stations = [
             </div>
         </div>
     </section>
+    <?php endif; ?>
 
+    <?php if (!$requested_application) : ?>
     <section class="solutions-cta">
         <div class="container">
             <div class="solutions-cta-inner" data-aos="fade-up">
@@ -219,6 +256,7 @@ $stations = [
             </div>
         </div>
     </section>
+    <?php endif; ?>
 </div>
 
 <?php get_footer(); ?>

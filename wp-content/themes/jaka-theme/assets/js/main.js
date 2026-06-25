@@ -1069,6 +1069,16 @@
     document.addEventListener('DOMContentLoaded', initSearchOverlay);
 
     /* ══ Hero Particles (CSS-enhanced) ══ */
+    function initMegaMenuTriggers() {
+        document.addEventListener('click', function(e) {
+            var trigger = e.target.closest('[data-mega-trigger="true"]');
+            if (!trigger) return;
+            e.preventDefault();
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', initMegaMenuTriggers);
+
     function initHeroParticles() {
         var container = document.getElementById('hero-particles');
         if (!container) return;

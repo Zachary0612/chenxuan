@@ -122,14 +122,10 @@ foreach ($product_cards as $product) {
     }
 }
 
-$solution_primary_case_slugs = function_exists('chenxuan_solution_primary_case_slugs') ? chenxuan_solution_primary_case_slugs() : [];
-$solution_links = array_map(function ($solution) use ($solution_primary_case_slugs) {
-    $case_slug = $solution_primary_case_slugs[$solution[2]] ?? '';
+$solution_links = array_map(function ($solution) {
     return [
         'label' => $solution[0],
-        'url' => $case_slug
-            ? add_query_arg('case', $case_slug, home_url('/cases/'))
-            : home_url('/solutions/') . '#industry-scenarios',
+        'url' => add_query_arg('solution_industry', $solution[2], home_url('/solutions/')),
     ];
 }, $solutions);
 
@@ -148,7 +144,7 @@ $solution_application_source = function_exists('chenxuan_case_applications') ? c
 $solution_application_links = array_map(function ($application) {
     return [
         'label' => $application,
-        'url' => add_query_arg('case_application', $application, home_url('/cases/')) . '#case-results',
+        'url' => add_query_arg('solution_application', $application, home_url('/solutions/')),
     ];
 }, $solution_application_source);
 $solution_case_link = ['label' => jaka_t('nav_cases') . ' ›', 'url' => home_url('/cases/') . '#case-results', 'class' => 'mega-case-link'];
@@ -190,7 +186,8 @@ $nav_items = [
     ],
     [
         'label' => jaka_t('nav_solutions'),
-        'url' => home_url('/solutions/'),
+        'url' => '#',
+        'disable_nav' => true,
         'mega_variant' => 'solutions',
         'columns' => [
             ['title' => chenxuan_l('行业场景'), 'links' => $solution_links],
@@ -200,7 +197,7 @@ $nav_items = [
         'feature' => [
             'title' => jaka_t('section_solutions'),
             'desc' => jaka_t('solutions_desc'),
-            'url' => home_url('/solutions/') . '#industry-scenarios',
+            'url' => add_query_arg('solution_industry', 'engineering-machinery', home_url('/solutions/')),
             'image' => function_exists('chenxuan_home_asset_url') ? chenxuan_home_asset_url('industries/engineering-machinery.jpg') : '',
         ],
     ],
@@ -259,8 +256,9 @@ if (!in_array($current_lang, ['zh', 'zh_tw'], true)) {
             <nav class="main-nav" id="main-nav">
                 <ul class="nav-menu">
                     <?php foreach ($nav_items as $item) : ?>
+                    <?php $is_disabled_nav = !empty($item['disable_nav']); ?>
                     <li class="menu-item<?php echo !empty($item['columns']) ? ' has-mega-menu' : ''; ?>">
-                        <a href="<?php echo esc_url($item['url']); ?>">
+                        <a href="<?php echo esc_url($is_disabled_nav ? '#' : $item['url']); ?>"<?php echo $is_disabled_nav ? ' data-mega-trigger="true" role="button" aria-haspopup="true"' : ''; ?>>
                             <span><?php echo esc_html($item['label']); ?></span>
                             <?php if (!empty($item['badge'])) : ?>
                             <em class="nav-hot-badge"><?php echo esc_html($item['badge']); ?></em>
@@ -385,8 +383,9 @@ if (!in_array($current_lang, ['zh', 'zh_tw'], true)) {
             <div class="mobile-menu-body">
                 <ul class="mobile-nav">
                     <?php foreach ($nav_items as $item) : ?>
+                    <?php $is_disabled_nav = !empty($item['disable_nav']); ?>
                     <li class="mobile-nav-item<?php echo !empty($item['columns']) ? ' has-children' : ''; ?>">
-                        <a href="<?php echo esc_url($item['url']); ?>">
+                        <a href="<?php echo esc_url($is_disabled_nav ? '#' : $item['url']); ?>"<?php echo $is_disabled_nav ? ' data-mega-trigger="true" role="button" aria-haspopup="true"' : ''; ?>>
                             <?php echo esc_html($item['label']); ?>
                             <?php if (!empty($item['columns'])) : ?>
                             <svg class="menu-arrow" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
