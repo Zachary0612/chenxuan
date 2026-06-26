@@ -1344,6 +1344,135 @@
 
     document.addEventListener('DOMContentLoaded', initServiceStageNav);
 
+    function initServiceMotion() {
+        var careSection = document.querySelector('.service-care-section');
+        var album = document.querySelector('[data-service-album]');
+        var albumImages = album ? Array.prototype.slice.call(album.querySelectorAll('[data-service-album-image]')) : [];
+        var digitalSection = document.querySelector('.service-digital-section');
+        var digitalGrid = digitalSection ? digitalSection.querySelector('.service-digital-grid') : null;
+        var digitalCards = digitalGrid ? Array.prototype.slice.call(digitalGrid.querySelectorAll('.service-digital-card')) : [];
+        var digitalVisual = document.querySelector('[data-service-digital-visual]');
+        var digitalImages = digitalVisual ? Array.prototype.slice.call(digitalVisual.querySelectorAll('[data-service-digital-image]')) : [];
+
+        if (!careSection && !digitalSection) return;
+
+        var ticking = false;
+
+        function clamp(value, min, max) {
+            return Math.max(min, Math.min(max, value));
+        }
+
+        function headerHeight() {
+            var header = document.querySelector('.site-header, .main-header, header');
+            if (header) {
+                var rectHeight = header.getBoundingClientRect().height;
+                if (rectHeight > 20) return rectHeight;
+            }
+
+            var value = getComputedStyle(document.documentElement).getPropertyValue('--header-height').trim();
+            var parsed = parseFloat(value);
+            if (!Number.isFinite(parsed)) return 84;
+            if (value.indexOf('rem') > -1) {
+                var rootSize = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+                return parsed * rootSize;
+            }
+            if (value.indexOf('vh') > -1) {
+                return parsed * (window.innerHeight || document.documentElement.clientHeight) / 100;
+            }
+            return parsed;
+        }
+
+        function sectionProgress(section) {
+            if (!section) return 0;
+            var viewportH = window.innerHeight || document.documentElement.clientHeight;
+            var stickyH = Math.max(1, viewportH - headerHeight());
+            var travel = Math.max(1, section.offsetHeight - stickyH);
+            var rect = section.getBoundingClientRect();
+            return clamp((headerHeight() - rect.top) / travel, 0, 1);
+        }
+
+        function updateAlbum(progress) {
+            if (!albumImages.length) return;
+
+            var count = albumImages.length;
+            var unit = progress * Math.max(count - 1, 1);
+            var current = clamp(Math.floor(unit + 0.5), 0, count - 1);
+
+            album.style.setProperty('--service-album-progress', progress.toFixed(3));
+
+            albumImages.forEach(function(image, index) {
+                var offset = index - unit;
+                var distance = Math.abs(offset);
+                var isPast = offset < -0.08;
+                var isFuture = offset > 1.18;
+                var x = isPast ? Math.max(-620, offset * 420) : (isFuture ? 500 + (offset - 1.18) * 120 : offset * 26);
+                var y = isPast ? Math.min(62, distance * 26) : Math.max(-18, offset * 8);
+                var scale = isPast ? Math.max(0.82, 1 - distance * 0.065) : Math.max(0.9, 1 - distance * 0.028);
+                var opacity = isPast ? Math.max(0.22, 0.58 - distance * 0.1) : Math.max(0.16, 1 - distance * 0.18);
+                var blur = isPast ? Math.min(5.5, distance * 2.5) : Math.min(3.5, Math.max(0, offset - 0.2) * 2);
+                var brightness = isPast ? 0.98 : 0.96 + Math.max(0, offset) * 0.02;
+                var zIndex = Math.round(100 - distance * 12 + (index === current ? 20 : 0));
+
+                image.classList.remove('is-prev', 'is-next');
+                image.classList.toggle('is-active', index === current);
+                image.style.opacity = opacity.toFixed(3);
+                image.style.zIndex = zIndex;
+                image.style.transform = 'translate3d(' + x.toFixed(1) + 'px, ' + y.toFixed(1) + 'px, 0) scale(' + scale.toFixed(3) + ')';
+                image.style.filter = 'blur(' + blur.toFixed(2) + 'px) brightness(' + brightness.toFixed(2) + ') saturate(.96)';
+            });
+        }
+
+        function updateDigital(progress) {
+            if (!digitalGrid) return;
+
+            digitalSection.classList.toggle('is-inview', progress > 0 && progress < 1);
+
+            var viewportW = window.innerWidth || document.documentElement.clientWidth;
+            var visibleW = Math.max(320, viewportW - 140);
+            var maxShift = Math.max(0, digitalGrid.scrollWidth - visibleW + Math.min(260, viewportW * 0.12));
+            var shift = -maxShift * progress;
+
+            digitalGrid.style.setProperty('--service-card-shift', shift.toFixed(1) + 'px');
+
+            digitalCards.forEach(function(card, index) {
+                var reveal = clamp((progress - index * 0.055) / 0.22, 0, 1);
+                var y = (1 - reveal) * 46;
+                var x = (1 - reveal) * 58;
+                var opacity = 0.34 + reveal * 0.66;
+
+                card.style.opacity = opacity.toFixed(3);
+                card.style.transform = 'translate3d(' + x.toFixed(1) + 'px, ' + y.toFixed(1) + 'px, 0)';
+            });
+        }
+
+        function lockDigitalVisual() {
+            if (!digitalImages.length) return;
+            digitalImages.forEach(function(image, index) {
+                image.classList.toggle('is-active', index === 0);
+            });
+        }
+
+        function update() {
+            ticking = false;
+            updateAlbum(sectionProgress(careSection));
+            updateDigital(sectionProgress(digitalSection));
+            lockDigitalVisual();
+        }
+
+        function requestUpdate() {
+            if (ticking) return;
+            ticking = true;
+            window.requestAnimationFrame(update);
+        }
+
+        window.addEventListener('scroll', requestUpdate, { passive: true });
+        window.addEventListener('resize', requestUpdate);
+        window.addEventListener('load', requestUpdate);
+        update();
+    }
+
+    document.addEventListener('DOMContentLoaded', initServiceMotion);
+
     /* About page customer reviews: alternate two batches every three seconds. */
     function initAboutTestimonialsRotation() {
         var stage = document.querySelector('.about-testimonials-stage');

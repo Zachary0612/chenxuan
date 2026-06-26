@@ -59,7 +59,7 @@ $service_entries = [
 ];
 
 $service_nav = [
-    ['id' => 'service-care', 'label' => $cx('服务保障', 'Care')],
+    ['id' => 'service-care', 'label' => $cx('客户赋能', 'Enablement')],
     ['id' => 'service-digital', 'label' => $cx('远程运维', 'Digital')],
     ['id' => 'service-academy', 'label' => $cx('培训赋能', 'Academy')],
 ];
@@ -78,6 +78,18 @@ $digital_cards = [
     [$cx('集成交付', 'Integration'), $cx('设备入场、安装联调、节拍优化一次推进。', 'Deliver installation, commissioning and cycle optimization together.')],
     [$cx('远程诊断', 'Remote'), $cx('通过远程沟通和数据回传快速定位异常。', 'Use remote communication and data feedback to locate issues quickly.')],
     [$cx('持续培训', 'Training'), $cx('操作、维护与工艺知识持续沉淀给客户团队。', 'Transfer operation, maintenance and process knowledge continuously.')],
+];
+
+$care_album_images = [
+    'guarantee/robot-workstation.jpg',
+    'guarantee/client-discussion.jpg',
+    'guarantee/onsite-service.jpg',
+];
+
+$digital_visuals = [
+    'guarantee/onsite-service.jpg',
+    'projects/project-automation-line.jpg',
+    'projects/project-robot-workstation.jpg',
 ];
 
 $academy_metrics = [
@@ -115,7 +127,7 @@ $academy_metrics = [
         <div class="service-care-layout">
             <div class="service-care-copy" data-aos="fade-right">
                 <span class="section-label"><?php echo esc_html($cx('ChenXuan Care', 'ChenXuan Care')); ?></span>
-                <h2><?php echo esc_html($cx('以全周期服务保障设备稳定运行', 'Full-cycle service keeps automation running steadily')); ?></h2>
+                <h2><?php echo esc_html($cx('专业创新服务', 'Professional Innovative Service')); ?></h2>
                 <p><?php echo esc_html($cx('从方案评估、工艺验证、设备交付到售后维护，辰轩用标准化流程和快速响应机制保障客户产线持续运行。', 'From solution evaluation, process validation and equipment delivery to after-sales maintenance, ChenXuan uses standardized workflows and fast response to keep customer lines running.')); ?></p>
                 <div class="service-care-points">
                     <?php foreach ($care_points as $point) : ?>
@@ -127,7 +139,11 @@ $academy_metrics = [
                 </div>
             </div>
             <figure class="service-care-media" data-aos="fade-left">
-                <img src="<?php echo esc_url($asset('guarantee/robot-workstation.jpg')); ?>" alt="<?php echo esc_attr($cx('机器人工作站服务保障', 'Robot workstation service assurance')); ?>" loading="lazy">
+                <div class="service-care-stack" data-service-album>
+                    <?php foreach ($care_album_images as $i => $image_path) : ?>
+                    <img src="<?php echo esc_url($asset($image_path)); ?>" alt="" loading="lazy" class="<?php echo $i === 0 ? 'is-active' : ($i === 1 ? 'is-next' : 'is-prev'); ?>" data-service-album-image>
+                    <?php endforeach; ?>
+                </div>
                 <figcaption>
                     <strong><?php echo esc_html($cx('基于行业经验的现场服务', 'Field service based on industry experience')); ?></strong>
                     <span><?php echo esc_html($cx('覆盖焊接、喷涂、搬运、打磨及非标自动化场景。', 'Covering welding, spraying, handling, grinding and custom automation scenarios.')); ?></span>
@@ -146,7 +162,11 @@ $academy_metrics = [
         </div>
         <div class="service-digital-layout">
             <div class="service-digital-visual" data-aos="fade-right">
-                <img src="<?php echo esc_url($asset('solution/one-stop-solution.jpg')); ?>" alt="<?php echo esc_attr($cx('一站式解决方案流程图', 'One-stop solution flow diagram')); ?>" loading="lazy">
+                <div class="service-digital-visual-stack" data-service-digital-visual>
+                    <?php foreach ($digital_visuals as $i => $image_path) : ?>
+                    <img src="<?php echo esc_url($asset($image_path)); ?>" alt="" loading="lazy" class="<?php echo $i === 0 ? 'is-active' : ''; ?>" data-service-digital-image>
+                    <?php endforeach; ?>
+                </div>
                 <div class="service-live-panel">
                     <span><?php echo esc_html($cx('在线服务状态', 'Service Status')); ?></span>
                     <strong><?php echo esc_html($cx('响应中', 'Online')); ?></strong>

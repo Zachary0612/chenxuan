@@ -53,11 +53,6 @@ $clip_text = static function($text, $length = 126) {
     return $text;
 };
 
-$first_char = static function($text) {
-    $text = (string) $text;
-    return function_exists('mb_substr') ? mb_substr($text, 0, 1) : substr($text, 0, 1);
-};
-
 $case_url = static function($case) {
     return add_query_arg('case', $case['slug'], home_url('/cases/'));
 };
@@ -159,26 +154,44 @@ $overview_solutions = $solutions;
                 <span><?php echo esc_html(chenxuan_lx('方案价值', 'Solution Value')); ?></span>
                 <h2><?php echo esc_html(chenxuan_lx('帮助用户解决痛点问题，实现产能升级', 'Solve pain points and upgrade capacity')); ?></h2>
             </div>
-            <div class="cx-compare-grid" data-aos="fade-up">
-                <article class="cx-compare-card cx-compare-card--advantage">
-                    <span><?php echo esc_html(chenxuan_lx('方案优势', 'Advantages')); ?></span>
-                    <h3><?php echo esc_html(chenxuan_lx('稳定、柔性、高效的自动化单元', 'Stable, flexible and efficient automation units')); ?></h3>
-                    <ul>
-                        <li><?php echo esc_html(chenxuan_lx('结合工件、节拍与现场空间输出可落地方案', 'Plans are built around workpieces, takt time and site space')); ?></li>
-                        <li><?php echo esc_html(chenxuan_lx('机器人、夹具、变位机与控制系统协同运行', 'Robots, fixtures, positioners and controls work together')); ?></li>
-                        <li><?php echo esc_html(chenxuan_lx('减少人工依赖，提升一致性和交付效率', 'Reduces labor dependence and improves consistency')); ?></li>
-                    </ul>
-                </article>
+            <div class="cx-value-board" data-aos="fade-up">
+                <div class="cx-value-column cx-value-column--pain">
+                    <span class="cx-value-label"><?php echo esc_html(chenxuan_lx('痛点问题', 'Pain Points')); ?></span>
+                    <article class="cx-value-item">
+                        <em>01</em>
+                        <h3><?php echo esc_html(chenxuan_lx('效率与品质波动明显', 'Unstable efficiency and quality')); ?></h3>
+                        <p><?php echo esc_html(chenxuan_lx('人工焊接、搬运或喷涂强度高，批量生产稳定性不足。', 'Manual work is intensive and batch stability is limited.')); ?></p>
+                    </article>
+                    <article class="cx-value-item">
+                        <em>02</em>
+                        <h3><?php echo esc_html(chenxuan_lx('换型慢，停线成本高', 'Slow changeovers raise downtime cost')); ?></h3>
+                        <p><?php echo esc_html(chenxuan_lx('多型号工件切换依赖经验，返修、等待与调试周期拉长。', 'Model changeovers rely on experience and stretch repair and tuning cycles.')); ?></p>
+                    </article>
+                    <article class="cx-value-item">
+                        <em>03</em>
+                        <h3><?php echo esc_html(chenxuan_lx('危险工位管理压力大', 'Hazardous stations are harder to manage')); ?></h3>
+                        <p><?php echo esc_html(chenxuan_lx('高温、粉尘、重载和重复作业对人员安全提出更高要求。', 'Heat, dust, heavy loads and repetitive work raise safety demands.')); ?></p>
+                    </article>
+                </div>
                 <div class="cx-vs-badge">VS</div>
-                <article class="cx-compare-card cx-compare-card--pain">
-                    <span><?php echo esc_html(chenxuan_lx('痛点问题', 'Pain Points')); ?></span>
-                    <h3><?php echo esc_html(chenxuan_lx('传统产线效率和品质波动明显', 'Traditional lines fluctuate in efficiency and quality')); ?></h3>
-                    <ul>
-                        <li><?php echo esc_html(chenxuan_lx('人工焊接、搬运或喷涂强度高且稳定性不足', 'Manual welding, handling or spraying is demanding and unstable')); ?></li>
-                        <li><?php echo esc_html(chenxuan_lx('多型号切换慢，返修和停线成本高', 'Model changeovers are slow and rework cost is high')); ?></li>
-                        <li><?php echo esc_html(chenxuan_lx('危险工位对安全管理提出更高要求', 'Hazardous stations require stricter safety control')); ?></li>
-                    </ul>
-                </article>
+                <div class="cx-value-column cx-value-column--solution">
+                    <span class="cx-value-label"><?php echo esc_html(chenxuan_lx('方案优势', 'Advantages')); ?></span>
+                    <article class="cx-value-item">
+                        <em>01</em>
+                        <h3><?php echo esc_html(chenxuan_lx('稳定节拍连续生产', 'Stable takt for continuous production')); ?></h3>
+                        <p><?php echo esc_html(chenxuan_lx('机器人、夹具、变位机与控制系统协同运行，保证动作一致。', 'Robots, fixtures, positioners and controls work together for consistent motion.')); ?></p>
+                    </article>
+                    <article class="cx-value-item">
+                        <em>02</em>
+                        <h3><?php echo esc_html(chenxuan_lx('柔性适配多类工件', 'Flexible adaptation to varied workpieces')); ?></h3>
+                        <p><?php echo esc_html(chenxuan_lx('结合工件、节拍与现场空间输出可落地方案，便于扩展。', 'Plans are built around workpieces, takt time and site space for scalable delivery.')); ?></p>
+                    </article>
+                    <article class="cx-value-item">
+                        <em>03</em>
+                        <h3><?php echo esc_html(chenxuan_lx('降低人工依赖', 'Lower labor dependence')); ?></h3>
+                        <p><?php echo esc_html(chenxuan_lx('减少重复和高风险岗位投入，提升交付效率与批次一致性。', 'Reduces repetitive and high-risk manual work while improving delivery consistency.')); ?></p>
+                    </article>
+                </div>
             </div>
         </div>
     </section>
@@ -207,7 +220,7 @@ $overview_solutions = $solutions;
                         <?php endif; ?>
                     </div>
                     <div class="cx-scene-copy">
-                        <div class="cx-scene-icon"><?php echo esc_html($first_char($case['application'])); ?></div>
+                        <span class="cx-scene-eyebrow"><?php echo esc_html(chenxuan_lx('应用详情', 'Application Detail')); ?></span>
                         <h3><?php echo esc_html($case['title']); ?></h3>
                         <ul>
                             <li><?php echo esc_html($clip_text($case['desc'], 52)); ?></li>
