@@ -1395,4 +1395,33 @@
 
     document.addEventListener('DOMContentLoaded', initAboutTestimonialsRotation);
 
+    /* Solution detail: switch JAKA-style application scene panels. */
+    function initSolutionSceneTabs() {
+        var sections = document.querySelectorAll('.cx-scenes');
+        if (!sections.length) return;
+
+        sections.forEach(function(section) {
+            var tabs = Array.prototype.slice.call(section.querySelectorAll('[data-cx-scene-tab]'));
+            var panels = Array.prototype.slice.call(section.querySelectorAll('[data-cx-scene-panel]'));
+
+            if (!tabs.length || !panels.length) return;
+
+            tabs.forEach(function(tab) {
+                tab.addEventListener('click', function() {
+                    var target = tab.getAttribute('data-cx-scene-tab');
+
+                    tabs.forEach(function(item) {
+                        item.classList.toggle('is-active', item === tab);
+                    });
+
+                    panels.forEach(function(panel) {
+                        panel.classList.toggle('is-active', panel.getAttribute('data-cx-scene-panel') === target);
+                    });
+                });
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', initSolutionSceneTabs);
+
 })();
