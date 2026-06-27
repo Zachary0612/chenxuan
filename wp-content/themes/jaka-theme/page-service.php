@@ -77,7 +77,6 @@ $digital_cards = [
     [$cx('工艺验证', 'Validation'), $cx('完成打样、路径、参数与质量稳定性评估。', 'Verify samples, paths, parameters and quality stability.')],
     [$cx('集成交付', 'Integration'), $cx('设备入场、安装联调、节拍优化一次推进。', 'Deliver installation, commissioning and cycle optimization together.')],
     [$cx('远程诊断', 'Remote'), $cx('通过远程沟通和数据回传快速定位异常。', 'Use remote communication and data feedback to locate issues quickly.')],
-    [$cx('持续培训', 'Training'), $cx('操作、维护与工艺知识持续沉淀给客户团队。', 'Transfer operation, maintenance and process knowledge continuously.')],
 ];
 
 $care_album_images = [
@@ -105,7 +104,7 @@ $academy_metrics = [
 
 <section class="service-gateway-section" id="service-overview">
     <div class="container">
-        <div class="service-gateway-grid" data-aos="fade-up">
+        <div class="service-gateway-grid">
             <?php foreach ($service_entries as $i => $item) : ?>
             <a class="service-gateway-item" href="#<?php echo esc_attr($item['target']); ?>">
                 <span class="service-gateway-icon" aria-hidden="true"><?php echo $capability_icon($i); ?></span>
@@ -125,7 +124,7 @@ $academy_metrics = [
     </nav>
     <div class="container">
         <div class="service-care-layout">
-            <div class="service-care-copy" data-aos="fade-right">
+            <div class="service-care-copy">
                 <span class="section-label"><?php echo esc_html($cx('ChenXuan Care', 'ChenXuan Care')); ?></span>
                 <h2><?php echo esc_html($cx('专业创新服务', 'Professional Innovative Service')); ?></h2>
                 <p><?php echo esc_html($cx('从方案评估、工艺验证、设备交付到售后维护，辰轩用标准化流程和快速响应机制保障客户产线持续运行。', 'From solution evaluation, process validation and equipment delivery to after-sales maintenance, ChenXuan uses standardized workflows and fast response to keep customer lines running.')); ?></p>
@@ -138,7 +137,7 @@ $academy_metrics = [
                     <?php endforeach; ?>
                 </div>
             </div>
-            <figure class="service-care-media" data-aos="fade-left">
+            <figure class="service-care-media">
                 <div class="service-care-stack" data-service-album>
                     <?php foreach ($care_album_images as $i => $image_path) : ?>
                     <img src="<?php echo esc_url($asset($image_path)); ?>" alt="" loading="lazy" class="<?php echo $i === 0 ? 'is-active' : ($i === 1 ? 'is-next' : 'is-prev'); ?>" data-service-album-image>
@@ -155,13 +154,13 @@ $academy_metrics = [
 
 <section class="service-digital-section service-scroll-panel" id="service-digital" data-service-panel>
     <div class="container">
-        <div class="service-section-heading" data-aos="fade-up">
+        <div class="service-section-heading">
             <span class="section-label"><?php echo esc_html($cx('远程运维与交付闭环', 'Digital Service Loop')); ?></span>
             <h2><?php echo esc_html($cx('从需求到量产的数字化服务流程', 'A digital service workflow from request to production')); ?></h2>
             <p><?php echo esc_html($cx('通过滚动分层呈现，把辰轩的方案、交付、维护和培训能力集中展示。', 'A layered presentation focused on ChenXuan solution, delivery, maintenance and training capabilities.')); ?></p>
         </div>
         <div class="service-digital-layout">
-            <div class="service-digital-visual" data-aos="fade-right">
+            <div class="service-digital-visual">
                 <div class="service-digital-visual-stack" data-service-digital-visual>
                     <?php foreach ($digital_visuals as $i => $image_path) : ?>
                     <img src="<?php echo esc_url($asset($image_path)); ?>" alt="" loading="lazy" class="<?php echo $i === 0 ? 'is-active' : ''; ?>" data-service-digital-image>
@@ -173,7 +172,7 @@ $academy_metrics = [
                     <small><?php echo esc_html($cx('方案评估 · 工艺验证 · 现场交付', 'Planning · Validation · Delivery')); ?></small>
                 </div>
             </div>
-            <div class="service-digital-grid" data-aos="fade-left">
+            <div class="service-digital-grid">
                 <?php foreach ($digital_cards as $i => $card) : ?>
                 <div class="service-digital-card">
                     <span><?php echo esc_html(str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT)); ?></span>
@@ -189,11 +188,11 @@ $academy_metrics = [
 <section class="service-academy-section service-scroll-panel" id="service-academy" data-service-panel>
     <div class="container">
         <div class="service-academy-layout">
-            <div class="service-academy-media" data-aos="fade-right">
+            <div class="service-academy-media">
                 <img src="<?php echo esc_url($asset('guarantee/client-discussion.jpg')); ?>" alt="<?php echo esc_attr($cx('客户培训与方案沟通', 'Customer training and solution communication')); ?>" loading="lazy">
                 <img src="<?php echo esc_url($asset('guarantee/onsite-service.jpg')); ?>" alt="<?php echo esc_attr($cx('现场技术支持', 'On-site technical support')); ?>" loading="lazy">
             </div>
-            <div class="service-academy-copy" data-aos="fade-left">
+            <div class="service-academy-copy">
                 <span class="section-label"><?php echo esc_html($cx('辰轩学院知识赋能', 'ChenXuan Academy Enablement')); ?></span>
                 <h2><?php echo esc_html($cx('让客户团队真正掌握自动化产线', 'Help customer teams master automation lines')); ?></h2>
                 <p><?php echo esc_html($cx('围绕操作、维保、工艺与安全标准开展培训，把项目经验沉淀为客户团队可持续使用的生产能力。', 'Training covers operation, maintenance, process and safety standards, turning project experience into sustainable production capability.')); ?></p>
@@ -213,7 +212,7 @@ $academy_metrics = [
 <section class="service-global-section service-network-section" id="global-layout">
     <div class="container">
         <div class="service-global-layout">
-            <div class="service-global-copy" data-aos="fade-right">
+            <div class="service-global-copy">
                 <span class="section-label"><?php echo esc_html($cx('辰轩全球布局', 'ChenXuan Global Layout')); ?></span>
                 <h2><?php echo esc_html($cx('坚持全球化发展战略', 'Committed to a Global Development Strategy')); ?></h2>
                 <p><?php echo esc_html($cx('产品与解决方案已服务欧洲、俄罗斯、中东、东南亚、南美等多个国家和地区。通过持续参加国际展会和建立海外合作网络，为全球客户提供专业、高效的自动化解决方案。', 'Products and solutions serve Europe, Russia, the Middle East, Southeast Asia, South America and other regions. Through international exhibitions and overseas partner networks, ChenXuan provides professional and efficient automation solutions for global customers.')); ?></p>
@@ -227,7 +226,7 @@ $academy_metrics = [
                 </div>
                 <a href="<?php echo esc_url(home_url('/strategic-cooperation')); ?>" class="btn btn-primary"><?php echo esc_html($cx('探索更多', 'Explore More')); ?> <?php echo jaka_svg_icon('arrow-right'); ?></a>
             </div>
-            <div class="service-global-media" data-aos="fade-left">
+            <div class="service-global-media">
                 <img src="<?php echo esc_url($asset('global/global-layout.jpg')); ?>" alt="<?php echo esc_attr($cx('辰轩全球布局展示', 'ChenXuan global layout showcase')); ?>" loading="lazy">
             </div>
         </div>
@@ -236,11 +235,11 @@ $academy_metrics = [
 
 <section class="service-faq-section" id="faq">
     <div class="container">
-        <div class="section-header" data-aos="fade-up">
+        <div class="section-header">
             <span class="section-label"><?php echo esc_html($cx('FAQ', 'FAQ')); ?></span>
             <h2 class="section-title"><?php echo esc_html($cx('常见问题', 'Frequently Asked Questions')); ?></h2>
         </div>
-        <div class="service-faq-list" data-aos="fade-up">
+        <div class="service-faq-list">
             <?php foreach ($faqs as $i => $faq) : ?>
             <details class="service-faq-item" <?php echo $i === 0 ? 'open' : ''; ?>>
                 <summary><?php echo esc_html($faq['q']); ?></summary>
@@ -253,11 +252,11 @@ $academy_metrics = [
 
 <section class="service-faq-section service-after-section" id="after-sales">
     <div class="container">
-        <div class="section-header" data-aos="fade-up">
+        <div class="section-header">
             <span class="section-label"><?php echo esc_html($cx('After-sales FAQ', 'After-sales FAQ')); ?></span>
             <h2 class="section-title"><?php echo esc_html($cx('售后服务问题', 'After-sales Service Questions')); ?></h2>
         </div>
-        <div class="service-faq-list compact" data-aos="fade-up">
+        <div class="service-faq-list compact">
             <?php foreach ($after_sales as $faq) : ?>
             <details class="service-faq-item">
                 <summary><?php echo esc_html($faq['q']); ?></summary>
@@ -270,7 +269,7 @@ $academy_metrics = [
 
 <section class="service-strategy-cta" id="strategic-entry">
     <div class="container">
-        <div class="service-strategy-card" data-aos="fade-up">
+        <div class="service-strategy-card">
             <div>
                 <span class="section-label"><?php echo esc_html($cx('资源 · 战略合作 · 项目案例', 'Resources · Strategic Cooperation · Project Cases')); ?></span>
                 <h2><?php echo esc_html($cx('查看展会签约客户与项目展示', 'View Exhibition Customers and Project Showcases')); ?></h2>

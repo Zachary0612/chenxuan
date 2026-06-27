@@ -698,7 +698,22 @@
         var backToTop = document.getElementById('back-to-top');
         if (backToTop) {
             backToTop.addEventListener('click', function() {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                var start = window.pageYOffset || document.documentElement.scrollTop || 0;
+                var startedAt = null;
+                var duration = 800;
+
+                function easeOutCubic(t) {
+                    return 1 - Math.pow(1 - t, 3);
+                }
+
+                function step(timestamp) {
+                    if (!startedAt) startedAt = timestamp;
+                    var progress = Math.min(1, (timestamp - startedAt) / duration);
+                    window.scrollTo(0, Math.round(start * (1 - easeOutCubic(progress))));
+                    if (progress < 1) window.requestAnimationFrame(step);
+                }
+
+                window.requestAnimationFrame(step);
             });
         }
     }
@@ -1348,13 +1363,44 @@
         var careSection = document.querySelector('.service-care-section');
         var album = document.querySelector('[data-service-album]');
         var albumImages = album ? Array.prototype.slice.call(album.querySelectorAll('[data-service-album-image]')) : [];
+        var albumCaption = album ? album.closest('.service-care-media').querySelector('figcaption') : null;
+        var careNavItems = Array.prototype.slice.call(document.querySelectorAll('.service-stage-nav [data-service-nav]'));
         var digitalSection = document.querySelector('.service-digital-section');
         var digitalGrid = digitalSection ? digitalSection.querySelector('.service-digital-grid') : null;
         var digitalCards = digitalGrid ? Array.prototype.slice.call(digitalGrid.querySelectorAll('.service-digital-card')) : [];
         var digitalVisual = document.querySelector('[data-service-digital-visual]');
         var digitalImages = digitalVisual ? Array.prototype.slice.call(digitalVisual.querySelectorAll('[data-service-digital-image]')) : [];
+        var isEnglish = (document.documentElement.lang || '').toLowerCase().indexOf('en') === 0;
+        var careCaptions = isEnglish ? [
+            {
+                title: 'Field service based on industry experience',
+                text: 'Covering welding, spraying, handling, grinding and custom automation scenarios.'
+            },
+            {
+                title: 'Closed-loop remote service and delivery',
+                text: 'Make ChenXuan planning, delivery, maintenance and training capability visible by layer.'
+            },
+            {
+                title: 'ChenXuan Academy knowledge enablement',
+                text: 'Help customer teams truly master automated production lines.'
+            }
+        ] : [
+            {
+                title: '基于行业经验的现场服务',
+                text: '覆盖焊接、喷涂、搬运、打磨及非标自动化场景。'
+            },
+            {
+                title: '远程运维与交付闭环',
+                text: '通过滚动分层呈现，把ChenXuan的方案、交付、维护和培训能力集中展示。'
+            },
+            {
+                title: 'CHENXUAN学院知识赋能',
+                text: '让客户团队真正掌握自动化产线，沉淀可持续使用的生产能力。'
+            }
+        ];
 
         if (!careSection && !digitalSection) return;
+        document.body.classList.add('is-service-page');
 
         var ticking = false;
 
@@ -1396,30 +1442,94 @@
 
             var count = albumImages.length;
             var unit = progress * Math.max(count - 1, 1);
-            var current = clamp(Math.floor(unit + 0.5), 0, count - 1);
+            var active = Math.floor(unit);
+            var frac = clamp(unit - active, 0, 1);
+            if (active >= count - 1) {
+                active = count - 1;
+                frac = 0;
+            }
+            active = clamp(active, 0, count - 1);
 
             album.style.setProperty('--service-album-progress', progress.toFixed(3));
 
+            var mediaWidth = album.offsetWidth || window.innerWidth * 0.68;
+            var previewOffset = Math.min(mediaWidth * 0.56, 640);
+            var transition = active < count - 1 ? clamp((frac - 0.15) / 0.7, 0, 1) : 0;
+            var mainIndex = transition > 0.58 && active < count - 1 ? active + 1 : active;
+
             albumImages.forEach(function(image, index) {
-                var offset = index - unit;
-                var distance = Math.abs(offset);
-                var isPast = offset < -0.08;
-                var isFuture = offset > 1.18;
-                var x = isPast ? Math.max(-620, offset * 420) : (isFuture ? 500 + (offset - 1.18) * 120 : offset * 26);
-                var y = isPast ? Math.min(62, distance * 26) : Math.max(-18, offset * 8);
-                var scale = isPast ? Math.max(0.82, 1 - distance * 0.065) : Math.max(0.9, 1 - distance * 0.028);
-                var opacity = isPast ? Math.max(0.22, 0.58 - distance * 0.1) : Math.max(0.16, 1 - distance * 0.18);
-                var blur = isPast ? Math.min(5.5, distance * 2.5) : Math.min(3.5, Math.max(0, offset - 0.2) * 2);
-                var brightness = isPast ? 0.98 : 0.96 + Math.max(0, offset) * 0.02;
-                var zIndex = Math.round(100 - distance * 12 + (index === current ? 20 : 0));
+                var x = 0;
+                var scale = 0.95;
+                var opacity = 0;
+                var blur = 7;
+                var zIndex = 0;
+
+                if (index === active && active < count - 1) {
+                    x = -40 * transition;
+                    scale = 1 - 0.02 * transition;
+                    opacity = Math.max(0, 1 - transition);
+                    blur = 0;
+                    zIndex = 110 - Math.round(transition * 28);
+                } else if (index === active + 1) {
+                    x = (previewOffset + 40) * (1 - transition);
+                    scale = transition > 0 ? 1.03 - 0.03 * transition : 0.95;
+                    opacity = transition > 0 ? 0.24 + 0.76 * transition : 0.24;
+                    blur = 6 * (1 - transition);
+                    zIndex = transition > 0 ? 60 + Math.round(transition * 60) : 24;
+                } else if (index === active) {
+                    x = 0;
+                    scale = 1;
+                    opacity = 1;
+                    blur = 0;
+                    zIndex = 120;
+                } else if (index === active - 1) {
+                    x = -previewOffset;
+                    scale = 0.95;
+                    opacity = 0.24;
+                    blur = 6;
+                    zIndex = 20;
+                } else if (index === active + 2) {
+                    x = previewOffset;
+                    scale = 0.94;
+                    opacity = 0.18;
+                    blur = 8;
+                    zIndex = 10;
+                } else {
+                    opacity = 0.1;
+                    x = previewOffset;
+                }
 
                 image.classList.remove('is-prev', 'is-next');
-                image.classList.toggle('is-active', index === current);
+                image.classList.toggle('is-active', index === mainIndex);
+                image.classList.toggle('is-prev', index < mainIndex && opacity > 0);
+                image.classList.toggle('is-next', index > mainIndex && opacity > 0);
                 image.style.opacity = opacity.toFixed(3);
-                image.style.zIndex = zIndex;
-                image.style.transform = 'translate3d(' + x.toFixed(1) + 'px, ' + y.toFixed(1) + 'px, 0) scale(' + scale.toFixed(3) + ')';
-                image.style.filter = 'blur(' + blur.toFixed(2) + 'px) brightness(' + brightness.toFixed(2) + ') saturate(.96)';
+                image.style.zIndex = Math.round(zIndex);
+                image.style.transform = 'translate3d(' + x.toFixed(1) + 'px, 0, 0) scale(' + scale.toFixed(3) + ')';
+                image.style.filter = 'blur(' + blur.toFixed(2) + 'px) brightness(1) saturate(1)';
+                image.setAttribute('aria-hidden', index === mainIndex ? 'false' : 'true');
             });
+
+            careNavItems.forEach(function(item, index) {
+                item.classList.toggle('is-active', index === mainIndex);
+            });
+
+            if (albumCaption && careCaptions[mainIndex]) {
+                var titleNode = albumCaption.querySelector('strong');
+                var textNode = albumCaption.querySelector('span');
+                var nextCaption = careCaptions[mainIndex];
+                if (titleNode && textNode && albumCaption.getAttribute('data-active-caption') !== String(mainIndex)) {
+                    albumCaption.classList.remove('is-visible');
+                    window.setTimeout(function() {
+                        titleNode.textContent = nextCaption.title;
+                        textNode.textContent = nextCaption.text;
+                        albumCaption.setAttribute('data-active-caption', String(mainIndex));
+                        albumCaption.classList.add('is-visible');
+                    }, 120);
+                } else {
+                    albumCaption.classList.add('is-visible');
+                }
+            }
         }
 
         function updateDigital(progress) {
@@ -1427,21 +1537,15 @@
 
             digitalSection.classList.toggle('is-inview', progress > 0 && progress < 1);
 
-            var viewportW = window.innerWidth || document.documentElement.clientWidth;
-            var visibleW = Math.max(320, viewportW - 140);
-            var maxShift = Math.max(0, digitalGrid.scrollWidth - visibleW + Math.min(260, viewportW * 0.12));
-            var shift = -maxShift * progress;
-
-            digitalGrid.style.setProperty('--service-card-shift', shift.toFixed(1) + 'px');
-
             digitalCards.forEach(function(card, index) {
-                var reveal = clamp((progress - index * 0.055) / 0.22, 0, 1);
-                var y = (1 - reveal) * 46;
-                var x = (1 - reveal) * 58;
-                var opacity = 0.34 + reveal * 0.66;
+                var reveal = clamp((progress - (0.05 + index * 0.015)) / 0.08, 0, 1);
+                var y = (1 - reveal) * 40;
+                var opacity = 0.28 + reveal * 0.72;
 
-                card.style.opacity = opacity.toFixed(3);
-                card.style.transform = 'translate3d(' + x.toFixed(1) + 'px, ' + y.toFixed(1) + 'px, 0)';
+                card.style.setProperty('--service-card-opacity', opacity.toFixed(3));
+                card.style.setProperty('--service-card-x', '0px');
+                card.style.setProperty('--service-card-y', y.toFixed(1) + 'px');
+                card.classList.toggle('is-visible', reveal > 0.98);
             });
         }
 
@@ -1472,6 +1576,187 @@
     }
 
     document.addEventListener('DOMContentLoaded', initServiceMotion);
+
+    function initServiceReveals() {
+        if (!document.querySelector('.service-care-section')) return;
+
+        var groups = [
+            {
+                root: '.service-academy-section',
+                items: ['.service-academy-media', '.service-academy-copy .section-label', '.service-academy-copy h2', '.service-academy-copy p', '.service-academy-metrics > div']
+            },
+            {
+                root: '.service-global-section',
+                items: ['.service-global-copy .section-label', '.service-global-copy h2', '.service-global-copy p', '.service-global-stats > div', '.service-global-media']
+            },
+            {
+                root: '.service-faq-section',
+                items: ['.section-label', 'h2', '.service-faq-item']
+            },
+            {
+                root: '.service-strategy-cta',
+                items: ['.service-strategy-card']
+            }
+        ];
+
+        var revealRoots = [];
+
+        groups.forEach(function(group) {
+            var roots = Array.prototype.slice.call(document.querySelectorAll(group.root));
+            roots.forEach(function(root) {
+                root.classList.add('service-reveal-root');
+                revealRoots.push(root);
+
+                var delayIndex = 0;
+                group.items.forEach(function(selector) {
+                    Array.prototype.slice.call(root.querySelectorAll(selector)).forEach(function(item) {
+                        item.classList.add('service-reveal-item');
+                        item.style.setProperty('--service-reveal-delay', Math.min(delayIndex * 120, 720) + 'ms');
+                        delayIndex += 1;
+                    });
+                });
+            });
+        });
+
+        if (!('IntersectionObserver' in window)) {
+            revealRoots.forEach(function(root) {
+                root.classList.add('is-service-visible');
+            });
+            return;
+        }
+
+        var observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (!entry.isIntersecting) return;
+                entry.target.classList.add('is-service-visible');
+                observer.unobserve(entry.target);
+            });
+        }, {
+            threshold: 0.22,
+            rootMargin: '0px 0px -18% 0px'
+        });
+
+        revealRoots.forEach(function(root) {
+            observer.observe(root);
+        });
+    }
+
+    function initServiceCounters() {
+        var metrics = Array.prototype.slice.call(document.querySelectorAll('.service-academy-metrics strong'));
+        if (!metrics.length) return;
+
+        function parseMetric(node) {
+            var original = node.textContent.trim();
+            var match = original.match(/(\d+)/);
+            var target = match ? parseInt(match[1], 10) : 0;
+            var prefix = original.indexOf('7x') === 0 ? '7x' : '';
+            var suffix = original.indexOf('+') > -1 ? '+' : '';
+            return {
+                original: original,
+                target: target,
+                prefix: prefix,
+                suffix: suffix
+            };
+        }
+
+        function easeOutCubic(t) {
+            return 1 - Math.pow(1 - t, 3);
+        }
+
+        var parsed = metrics.map(function(node) {
+            var value = parseMetric(node);
+            node.setAttribute('data-service-counter-original', value.original);
+            node.textContent = value.prefix + '0' + value.suffix;
+            return value;
+        });
+
+        function animateMetric(node, value, delay) {
+            window.setTimeout(function() {
+                var startedAt = null;
+                var duration = 1000;
+
+                function step(timestamp) {
+                    if (!startedAt) startedAt = timestamp;
+                    var progress = Math.min(1, (timestamp - startedAt) / duration);
+                    var current = Math.round(value.target * easeOutCubic(progress));
+                    node.textContent = value.prefix + current + value.suffix;
+                    if (progress < 1) {
+                        window.requestAnimationFrame(step);
+                    } else {
+                        node.textContent = value.original;
+                    }
+                }
+
+                window.requestAnimationFrame(step);
+            }, delay);
+        }
+
+        var root = document.querySelector('.service-academy-metrics');
+        if (!root || !('IntersectionObserver' in window)) {
+            metrics.forEach(function(node, index) {
+                animateMetric(node, parsed[index], index * 100);
+            });
+            return;
+        }
+
+        var observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (!entry.isIntersecting) return;
+                metrics.forEach(function(node, index) {
+                    animateMetric(node, parsed[index], index * 100);
+                });
+                observer.disconnect();
+            });
+        }, {
+            threshold: 0.35
+        });
+
+        observer.observe(root);
+    }
+
+    function initServiceFAQ() {
+        var lists = Array.prototype.slice.call(document.querySelectorAll('.service-faq-list'));
+        if (!lists.length) return;
+
+        lists.forEach(function(list) {
+            var items = Array.prototype.slice.call(list.querySelectorAll('.service-faq-item'));
+            items.forEach(function(item) {
+                if (item.open) item.classList.add('is-open');
+                var summary = item.querySelector('summary');
+                if (!summary) return;
+
+                summary.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    var shouldOpen = !item.open || !item.classList.contains('is-open');
+
+                    items.forEach(function(other) {
+                        if (other === item) return;
+                        other.classList.remove('is-open');
+                        window.setTimeout(function() {
+                            if (!other.classList.contains('is-open')) other.open = false;
+                        }, 300);
+                    });
+
+                    if (!shouldOpen) {
+                        item.classList.remove('is-open');
+                        window.setTimeout(function() {
+                            if (!item.classList.contains('is-open')) item.open = false;
+                        }, 300);
+                        return;
+                    }
+
+                    item.open = true;
+                    window.requestAnimationFrame(function() {
+                        item.classList.add('is-open');
+                    });
+                });
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', initServiceReveals);
+    document.addEventListener('DOMContentLoaded', initServiceCounters);
+    document.addEventListener('DOMContentLoaded', initServiceFAQ);
 
     /* About page customer reviews: alternate two batches every three seconds. */
     function initAboutTestimonialsRotation() {
