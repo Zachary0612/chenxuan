@@ -3876,9 +3876,14 @@ body.is-service-page .sidebar-btn:hover span {
 .service-academy-metrics div::before {
     content: "";
     position: absolute;
-    inset: 0 0 auto 0;
-    height: 2px;
-    background: linear-gradient(90deg, var(--service-red) 0 38px, rgba(228, 0, 30, .18) 38px, rgba(228, 0, 30, 0) 100%);
+    left: 17px;
+    top: 18px;
+    width: 14px;
+    height: 14px;
+    border-left: 2px solid rgba(228, 0, 30, .32);
+    border-bottom: 2px solid rgba(228, 0, 30, .2);
+    background: transparent;
+    opacity: .72;
 }
 
 .service-academy-metrics div::after {
@@ -3902,7 +3907,7 @@ body.is-service-page .sidebar-btn:hover span {
 
 .service-academy-metrics strong {
     display: block;
-    color: #101827;
+    color: #101827 !important;
     font-weight: 900;
     line-height: .95;
     letter-spacing: 0;
