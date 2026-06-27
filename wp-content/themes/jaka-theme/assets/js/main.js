@@ -1453,60 +1453,83 @@
             album.style.setProperty('--service-album-progress', progress.toFixed(3));
 
             var mediaWidth = album.offsetWidth || window.innerWidth * 0.68;
-            var previewOffset = Math.min(mediaWidth * 0.56, 640);
-            var transition = active < count - 1 ? clamp((frac - 0.15) / 0.7, 0, 1) : 0;
-            var mainIndex = transition > 0.58 && active < count - 1 ? active + 1 : active;
+            var mediaHeight = album.offsetHeight || window.innerHeight * 0.56;
+            var eased = frac * frac * (3 - 2 * frac);
+            var pullX = Math.min(mediaWidth * 0.13, 190);
+            var pullY = Math.min(mediaHeight * 0.5, 315);
+            var stackX = Math.min(mediaWidth * 0.14, 220);
+            var stackY = Math.min(mediaHeight * 0.28, 180);
+            var pullFade = Math.pow(eased, 2.08);
+            var revealEase = Math.pow(eased, 0.86);
+            var mainIndex = eased > 0.58 && active < count - 1 ? active + 1 : active;
+
+            function setState(image, x, y, scale, opacity, blur, zIndex, rotate) {
+                image.style.opacity = opacity.toFixed(3);
+                image.style.zIndex = Math.round(zIndex);
+                image.style.transform = 'translate3d(' + x.toFixed(1) + 'px, ' + y.toFixed(1) + 'px, 0) rotate(' + rotate.toFixed(2) + 'deg) scale(' + scale.toFixed(3) + ')';
+                image.style.filter = 'blur(' + blur.toFixed(2) + 'px) brightness(1) saturate(1)';
+            }
 
             albumImages.forEach(function(image, index) {
                 var x = 0;
-                var scale = 0.95;
+                var y = 0;
+                var scale = 1;
                 var opacity = 0;
-                var blur = 7;
+                var blur = 0;
                 var zIndex = 0;
+                var rotate = 0;
 
                 if (index === active && active < count - 1) {
-                    x = -40 * transition;
-                    scale = 1 - 0.02 * transition;
-                    opacity = Math.max(0, 1 - transition);
-                    blur = 0;
-                    zIndex = 110 - Math.round(transition * 28);
+                    x = -pullX * eased;
+                    y = -pullY * eased;
+                    scale = 1 - 0.026 * eased;
+                    opacity = Math.max(0, 1 - pullFade * 0.98);
+                    blur = 1.35 * eased;
+                    zIndex = 130 - Math.round(eased * 78);
+                    rotate = -1.25 * eased;
                 } else if (index === active + 1) {
-                    x = (previewOffset + 40) * (1 - transition);
-                    scale = transition > 0 ? 1.03 - 0.03 * transition : 0.95;
-                    opacity = transition > 0 ? 0.24 + 0.76 * transition : 0.24;
-                    blur = 6 * (1 - transition);
-                    zIndex = transition > 0 ? 60 + Math.round(transition * 60) : 24;
+                    x = stackX * (1 - eased);
+                    y = stackY * (1 - eased);
+                    scale = 0.94 + 0.06 * eased;
+                    opacity = 0.16 + 0.84 * revealEase;
+                    blur = 7.5 * (1 - eased);
+                    zIndex = 62 + Math.round(eased * 70);
+                    rotate = 0.55 * (1 - eased);
                 } else if (index === active) {
                     x = 0;
+                    y = 0;
                     scale = 1;
                     opacity = 1;
                     blur = 0;
-                    zIndex = 120;
-                } else if (index === active - 1) {
-                    x = -previewOffset;
-                    scale = 0.95;
-                    opacity = 0.24;
-                    blur = 6;
-                    zIndex = 20;
-                } else if (index === active + 2) {
-                    x = previewOffset;
-                    scale = 0.94;
-                    opacity = 0.18;
+                    zIndex = 130;
+                } else if (index < active) {
+                    x = -Math.min(mediaWidth * 0.74, 900);
+                    y = -Math.min(mediaHeight * 0.42, 300);
+                    scale = 0.96;
+                    opacity = 0;
                     blur = 8;
-                    zIndex = 10;
+                    zIndex = 0;
+                    rotate = -2;
+                } else if (index > active + 1) {
+                    var depth = index - active - 1;
+                    x = stackX + depth * 42;
+                    y = stackY + depth * 24;
+                    scale = Math.max(0.88, 0.94 - depth * 0.025);
+                    opacity = Math.max(0.08, 0.22 - depth * 0.045);
+                    blur = Math.min(10, 7 + depth);
+                    zIndex = 34 - depth;
+                    rotate = 0.5 + depth * 0.16;
                 } else {
-                    opacity = 0.1;
-                    x = previewOffset;
+                    opacity = 0;
                 }
 
-                image.classList.remove('is-prev', 'is-next');
+                image.classList.remove('is-prev', 'is-next', 'is-pulling', 'is-wallet');
                 image.classList.toggle('is-active', index === mainIndex);
+                image.classList.toggle('is-pulling', index === active && active < count - 1 && eased > 0.02);
+                image.classList.toggle('is-wallet', index > active);
                 image.classList.toggle('is-prev', index < mainIndex && opacity > 0);
                 image.classList.toggle('is-next', index > mainIndex && opacity > 0);
-                image.style.opacity = opacity.toFixed(3);
-                image.style.zIndex = Math.round(zIndex);
-                image.style.transform = 'translate3d(' + x.toFixed(1) + 'px, 0, 0) scale(' + scale.toFixed(3) + ')';
-                image.style.filter = 'blur(' + blur.toFixed(2) + 'px) brightness(1) saturate(1)';
+                setState(image, x, y, scale, opacity, blur, zIndex, rotate);
                 image.setAttribute('aria-hidden', index === mainIndex ? 'false' : 'true');
             });
 
