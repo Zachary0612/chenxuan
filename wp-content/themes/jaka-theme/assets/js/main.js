@@ -1455,10 +1455,13 @@
             var mediaWidth = album.offsetWidth || window.innerWidth * 0.68;
             var mediaHeight = album.offsetHeight || window.innerHeight * 0.56;
             var eased = frac * frac * (3 - 2 * frac);
-            var pullX = Math.min(mediaWidth * 0.13, 190);
-            var pullY = Math.min(mediaHeight * 0.5, 315);
-            var stackX = Math.min(mediaWidth * 0.14, 220);
+            var pullX = Math.min(mediaWidth * 0.24, 310);
+            var pullY = Math.min(mediaHeight * 0.48, 305);
             var stackY = Math.min(mediaHeight * 0.28, 180);
+            var liftPhase = clamp(eased / 0.68, 0, 1);
+            var exitPhase = clamp((eased - 0.68) / 0.32, 0, 1);
+            var liftEase = liftPhase * liftPhase * (3 - 2 * liftPhase);
+            var exitEase = exitPhase * exitPhase * (3 - 2 * exitPhase);
             var pullFade = Math.pow(eased, 2.08);
             var revealEase = Math.pow(eased, 0.86);
             var mainIndex = eased > 0.58 && active < count - 1 ? active + 1 : active;
@@ -1480,21 +1483,21 @@
                 var rotate = 0;
 
                 if (index === active && active < count - 1) {
-                    x = -pullX * eased;
-                    y = -pullY * eased;
-                    scale = 1 - 0.026 * eased;
+                    x = -pullX * exitEase;
+                    y = -pullY * liftEase;
+                    scale = 1 - 0.018 * liftEase - 0.012 * exitEase;
                     opacity = Math.max(0, 1 - pullFade * 0.98);
-                    blur = 1.35 * eased;
-                    zIndex = 130 - Math.round(eased * 78);
-                    rotate = -1.25 * eased;
+                    blur = 0.75 * liftEase + 0.7 * exitEase;
+                    zIndex = 130 - Math.round(exitEase * 78);
+                    rotate = -0.8 * exitEase;
                 } else if (index === active + 1) {
-                    x = stackX * (1 - eased);
+                    x = 0;
                     y = stackY * (1 - eased);
                     scale = 0.94 + 0.06 * eased;
                     opacity = 0.16 + 0.84 * revealEase;
                     blur = 7.5 * (1 - eased);
                     zIndex = 62 + Math.round(eased * 70);
-                    rotate = 0.55 * (1 - eased);
+                    rotate = 0;
                 } else if (index === active) {
                     x = 0;
                     y = 0;
@@ -1512,13 +1515,13 @@
                     rotate = -2;
                 } else if (index > active + 1) {
                     var depth = index - active - 1;
-                    x = stackX + depth * 42;
+                    x = 0;
                     y = stackY + depth * 24;
                     scale = Math.max(0.88, 0.94 - depth * 0.025);
                     opacity = Math.max(0.08, 0.22 - depth * 0.045);
                     blur = Math.min(10, 7 + depth);
                     zIndex = 34 - depth;
-                    rotate = 0.5 + depth * 0.16;
+                    rotate = 0;
                 } else {
                     opacity = 0;
                 }
