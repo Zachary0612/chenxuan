@@ -3503,3 +3503,327 @@ body.is-service-page .sidebar-btn:hover span {
             transform 420ms cubic-bezier(.22, 1, .36, 1);
     }
 }
+
+/* v2.0.120: JAKA-like digital service rail. It begins as a right-side peek, then scrolls horizontally. */
+@media (min-width: 1181px) {
+    .service-digital-section {
+        min-height: 305vh;
+        overflow: clip;
+        background: #fff;
+    }
+
+    .service-digital-section > .container {
+        top: var(--header-height);
+        height: calc(100vh - var(--header-height));
+        overflow: hidden;
+    }
+
+    .service-digital-layout {
+        grid-template-columns: minmax(0, 43vw) minmax(0, 57vw);
+    }
+
+    .service-digital-visual {
+        width: 43vw;
+    }
+
+    .service-digital-section .service-section-heading {
+        top: clamp(64px, 7.2vh, 92px);
+        right: clamp(150px, 14vw, 270px);
+        width: min(660px, 44vw);
+    }
+
+    .service-digital-grid {
+        left: 0;
+        bottom: clamp(24px, 4vh, 54px);
+        z-index: 8;
+        display: flex;
+        align-items: stretch;
+        gap: clamp(18px, 1.45vw, 28px);
+        width: max-content;
+        max-width: none;
+        padding: 0;
+        overflow: visible;
+        transform: translate3d(var(--service-digital-rail-x, calc(100vw - 112px)), 0, 0);
+        transition: none;
+        will-change: transform;
+    }
+
+    .service-digital-card {
+        flex: 0 0 clamp(270px, 22.4vw, 430px);
+        width: clamp(270px, 22.4vw, 430px);
+        height: clamp(300px, 34vh, 382px);
+        min-height: 0;
+        padding: clamp(28px, 2.1vw, 42px) clamp(26px, 2vw, 38px) clamp(24px, 1.9vw, 34px);
+        opacity: 1 !important;
+        transform: translate3d(0, 0, 0) !important;
+        border: 1px solid rgba(15, 23, 42, .06);
+        border-radius: 0;
+        background: rgba(255, 255, 255, .985);
+        box-shadow: 0 22px 70px rgba(15, 23, 42, .09);
+        transition:
+            border-color 250ms ease-out,
+            box-shadow 250ms ease-out,
+            transform 250ms ease-out;
+    }
+
+    .service-digital-card:hover {
+        transform: translate3d(0, -6px, 0) !important;
+        border-color: rgba(228, 0, 30, .22);
+        box-shadow: 0 30px 86px rgba(15, 23, 42, .13);
+    }
+
+    .service-digital-card::before {
+        order: 0;
+        width: 44px;
+        height: 44px;
+        margin-bottom: clamp(24px, 2.8vh, 34px);
+        border-color: #374151;
+        background:
+            linear-gradient(90deg, transparent 0 34%, #374151 34% 40%, transparent 40% 100%),
+            linear-gradient(#374151, #374151) 48% 44% / 20px 2px no-repeat,
+            linear-gradient(var(--service-red), var(--service-red)) 62% 64% / 20px 2px no-repeat,
+            #fff;
+        transition: border-color 250ms ease-out, transform 250ms ease-out;
+    }
+
+    .service-digital-card:hover::before {
+        border-color: var(--service-red);
+        transform: translateY(-2px);
+    }
+
+    .service-digital-card::after {
+        left: clamp(18px, 1.6vw, 28px);
+        bottom: -16px;
+        color: rgba(5, 11, 24, .032);
+        font-size: clamp(62px, 5.2vw, 100px);
+        letter-spacing: .01em;
+    }
+
+    .service-digital-card strong {
+        order: 1;
+        display: block;
+        min-height: clamp(48px, 5.8vh, 64px);
+        margin-bottom: 12px;
+        color: var(--service-ink);
+        font-size: clamp(24px, 1.55vw, 31px);
+        line-height: 1.18;
+        letter-spacing: 0;
+    }
+
+    .service-digital-card p {
+        order: 2;
+        color: #4b5563;
+        font-size: clamp(14px, .86vw, 16px);
+        line-height: 1.66;
+        letter-spacing: 0;
+    }
+
+    .service-digital-card span {
+        order: 3;
+        display: flex;
+        align-items: flex-end;
+        gap: 6px;
+        margin-top: auto;
+        color: var(--service-red);
+        font-size: clamp(54px, 4vw, 76px);
+        font-weight: 900;
+        line-height: .9;
+    }
+
+    .service-digital-card span em {
+        margin-bottom: .22em;
+        color: #d7dce4;
+        font-size: clamp(15px, 1.1vw, 20px);
+        font-style: normal;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+    .service-digital-card:hover span {
+        transform: none;
+    }
+
+    .service-digital-card-qr::before {
+        display: none;
+    }
+
+    .service-digital-qr-media {
+        order: 0;
+        width: clamp(86px, 6vw, 116px);
+        height: clamp(86px, 6vw, 116px);
+        margin-bottom: clamp(22px, 2.4vh, 30px);
+        padding: 8px;
+        border: 1px solid #edf0f4;
+        background: #fff;
+        box-shadow: 0 12px 34px rgba(15, 23, 42, .08);
+    }
+
+    .service-digital-qr-media img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+}
+
+@media (max-width: 1180px) {
+    .service-digital-grid {
+        transform: none !important;
+    }
+
+    .service-digital-card span {
+        display: flex;
+        align-items: flex-end;
+        gap: 5px;
+    }
+
+    .service-digital-card span em {
+        color: #d7dce4;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 700;
+    }
+
+    .service-digital-card-qr::before {
+        display: none;
+    }
+
+    .service-digital-qr-media {
+        width: 92px;
+        height: 92px;
+        margin-bottom: 18px;
+        padding: 8px;
+        border: 1px solid #edf0f4;
+        background: #fff;
+    }
+
+    .service-digital-qr-media img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+}
+
+/* v2.0.121: tune the digital workflow panel proportions against the JAKA reference. */
+@media (min-width: 1181px) {
+    .service-digital-section {
+        min-height: 310vh;
+    }
+
+    .service-digital-layout {
+        position: absolute;
+        inset: 0;
+        display: block;
+        width: 100%;
+        max-width: none;
+        min-height: 0;
+        margin: 0;
+    }
+
+    .service-digital-visual {
+        position: absolute;
+        inset: 0 auto 0 0;
+        z-index: 1;
+        width: clamp(500px, 42.2vw, 810px);
+        height: 100%;
+        min-height: 0;
+        opacity: 1;
+        overflow: hidden;
+    }
+
+    .service-digital-visual::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, .08) 68%, rgba(255, 255, 255, .74) 100%);
+        pointer-events: none;
+    }
+
+    .service-digital-visual-stack,
+    .service-digital-visual-stack img {
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+    }
+
+    .service-digital-visual-stack img {
+        opacity: 1 !important;
+        filter: none !important;
+        object-fit: cover;
+        object-position: center;
+    }
+
+    .service-digital-section .service-section-heading {
+        position: absolute;
+        z-index: 4;
+        top: clamp(76px, 11vh, 118px);
+        left: clamp(560px, 48.5vw, 910px);
+        right: auto;
+        width: min(560px, 40vw);
+        padding: 0;
+        text-align: left;
+    }
+
+    .service-digital-section .service-section-heading .section-label {
+        margin-bottom: clamp(16px, 2.1vh, 24px);
+        font-size: clamp(14px, .9vw, 17px);
+    }
+
+    .service-digital-section .service-section-heading h2 {
+        max-width: 560px;
+        font-size: clamp(40px, 3.35vw, 60px);
+        line-height: 1.1;
+    }
+
+    .service-digital-section .service-section-heading p {
+        max-width: 520px;
+        margin-top: clamp(20px, 2.5vh, 28px);
+        font-size: clamp(16px, 1vw, 19px);
+        line-height: 1.72;
+    }
+
+    .service-digital-grid {
+        bottom: clamp(40px, 5.2vh, 64px);
+        gap: clamp(18px, 1.5vw, 28px);
+    }
+
+    .service-digital-card {
+        display: flex;
+        flex-direction: column;
+        flex: 0 0 clamp(264px, 21.6vw, 414px);
+        width: clamp(264px, 21.6vw, 414px);
+        height: clamp(236px, 26vh, 284px);
+        padding: clamp(22px, 1.75vw, 34px) clamp(24px, 1.85vw, 36px) clamp(20px, 1.65vw, 30px);
+    }
+
+    .service-digital-card::before {
+        width: 40px;
+        height: 40px;
+        margin-bottom: clamp(18px, 2vh, 26px);
+    }
+
+    .service-digital-card strong {
+        min-height: 0;
+        margin-bottom: 10px;
+        font-size: clamp(21px, 1.38vw, 28px);
+        line-height: 1.2;
+    }
+
+    .service-digital-card p {
+        font-size: clamp(13px, .82vw, 15px);
+        line-height: 1.62;
+    }
+
+    .service-digital-card span {
+        margin-top: auto;
+        font-size: clamp(44px, 3.3vw, 64px);
+    }
+
+    .service-digital-qr-media {
+        width: clamp(72px, 5vw, 102px);
+        height: clamp(72px, 5vw, 102px);
+        margin-bottom: clamp(14px, 1.8vh, 22px);
+    }
+}

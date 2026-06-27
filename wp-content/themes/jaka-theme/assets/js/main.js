@@ -1563,15 +1563,37 @@
 
             digitalSection.classList.toggle('is-inview', progress > 0 && progress < 1);
 
-            digitalCards.forEach(function(card, index) {
-                var reveal = clamp((progress - (0.05 + index * 0.015)) / 0.08, 0, 1);
-                var y = (1 - reveal) * 40;
-                var opacity = 0.28 + reveal * 0.72;
+            var viewportW = window.innerWidth || document.documentElement.clientWidth || 1200;
 
-                card.style.setProperty('--service-card-opacity', opacity.toFixed(3));
+            if (viewportW <= 1180) {
+                digitalGrid.style.setProperty('--service-digital-rail-x', '0px');
+                digitalCards.forEach(function(card) {
+                    card.style.setProperty('--service-card-opacity', '1');
+                    card.style.setProperty('--service-card-x', '0px');
+                    card.style.setProperty('--service-card-y', '0px');
+                    card.classList.add('is-visible');
+                });
+                return;
+            }
+
+            var railWidth = digitalGrid.scrollWidth || digitalGrid.getBoundingClientRect().width || 1;
+            var firstCard = digitalCards[0];
+            var firstWidth = firstCard ? firstCard.getBoundingClientRect().width : Math.min(420, viewportW * 0.22);
+            var peek = Math.max(86, Math.min(138, firstWidth * 0.34));
+            var sidebarClear = Math.max(104, Math.min(150, viewportW * 0.09));
+            var startX = viewportW - peek - sidebarClear;
+            var endPadding = Math.max(42, Math.min(100, viewportW * 0.058));
+            var endX = Math.min(0, viewportW - railWidth - endPadding);
+            var railProgress = clamp((progress - 0.03) / 0.86, 0, 1);
+            var x = startX + (endX - startX) * railProgress;
+
+            digitalGrid.style.setProperty('--service-digital-rail-x', x.toFixed(1) + 'px');
+
+            digitalCards.forEach(function(card, index) {
+                card.style.setProperty('--service-card-opacity', '1');
                 card.style.setProperty('--service-card-x', '0px');
-                card.style.setProperty('--service-card-y', y.toFixed(1) + 'px');
-                card.classList.toggle('is-visible', reveal > 0.98);
+                card.style.setProperty('--service-card-y', '0px');
+                card.classList.toggle('is-visible', true);
             });
         }
 

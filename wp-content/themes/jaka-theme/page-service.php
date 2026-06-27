@@ -78,6 +78,7 @@ $digital_cards = [
     [$cx('集成交付', 'Integration'), $cx('设备入场、安装联调、节拍优化一次推进。', 'Deliver installation, commissioning and cycle optimization together.')],
     [$cx('远程诊断', 'Remote'), $cx('通过远程沟通和数据回传快速定位异常。', 'Use remote communication and data feedback to locate issues quickly.')],
 ];
+$digital_total = count($digital_cards) + 1;
 
 $care_album_images = [
     'guarantee/robot-workstation.jpg',
@@ -175,11 +176,19 @@ $academy_metrics = [
             <div class="service-digital-grid">
                 <?php foreach ($digital_cards as $i => $card) : ?>
                 <div class="service-digital-card">
-                    <span><?php echo esc_html(str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT)); ?></span>
+                    <span><?php echo esc_html(str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT)); ?><em>/<?php echo esc_html((string) $digital_total); ?></em></span>
                     <strong><?php echo esc_html($card[0]); ?></strong>
                     <p><?php echo esc_html($card[1]); ?></p>
                 </div>
                 <?php endforeach; ?>
+                <div class="service-digital-card service-digital-card-qr">
+                    <div class="service-digital-qr-media">
+                        <img src="<?php echo esc_url($asset('solution/tiktok-qr.jpg')); ?>" alt="<?php echo esc_attr($cx('TikTok二维码', 'TikTok QR Code')); ?>" loading="lazy">
+                    </div>
+                    <strong><?php echo esc_html($cx('TikTok二维码', 'TikTok QR Code')); ?></strong>
+                    <p><?php echo esc_html($cx('扫码关注ChenXuan Robot，查看项目视频与服务动态。', 'Scan to follow ChenXuan Robot for project videos and service updates.')); ?></p>
+                    <span><?php echo esc_html(str_pad((string) $digital_total, 2, '0', STR_PAD_LEFT)); ?><em>/<?php echo esc_html((string) $digital_total); ?></em></span>
+                </div>
             </div>
         </div>
     </div>
