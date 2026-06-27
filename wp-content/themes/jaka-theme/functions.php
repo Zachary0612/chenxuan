@@ -5,7 +5,7 @@
 
 if (!defined('ABSPATH')) exit;
 
-define('JAKA_VERSION', '2.0.123');
+define('JAKA_VERSION', '2.0.125');
 define('JAKA_DIR', get_template_directory());
 define('JAKA_URI', get_template_directory_uri());
 
